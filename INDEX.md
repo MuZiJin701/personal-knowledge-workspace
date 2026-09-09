@@ -6,6 +6,7 @@
 - [Command Line](knowledge/command-line/)：文本搜索、Git、apt、环境变量和终端编辑器。
 - [Matt Pocock Skills](knowledge/matt-pocock-skills/)：Skills 的安装、分类、调用方式和工作目录约定。
 - [Node.js](knowledge/node-js/)：本机 Node.js/npm 环境与 Node.js 生态知识。
+- [Python](knowledge/python/)：Python 工具链、uv 基础知识和项目管理。
 - [Windows](knowledge/windows/)：Windows 应用安装位置、AppX 目录和任务栏排障。
 - [Windows Package Management](knowledge/windows-package-management/)：Scoop、winget 和常用命令。
 - [Windows Security](knowledge/windows-security/)：Windows 安全组件检查与排障结论。
