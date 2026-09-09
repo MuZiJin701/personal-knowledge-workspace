@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>公众号正文富文本复制页</title>
+  <style>
+    body { margin: 0; background: #f3f5f7; color: #263238; font: 16px/1.85 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; }
+    .toolbar { position: sticky; top: 0; z-index: 2; padding: 12px 20px; background: #fff; border-bottom: 1px solid #dfe5eb; text-align: center; }
+    button { padding: 9px 18px; border: 0; border-radius: 5px; background: #1677ff; color: #fff; font-size: 15px; cursor: pointer; }
+    #status { margin-left: 12px; color: #16803c; }
+    #article { box-sizing: border-box; max-width: 760px; min-height: 100vh; margin: 0 auto; padding: 28px 24px 64px; background: #fff; }
+    h2 { margin: 2em 0 .7em; color: #1f5fae; font-size: 23px; line-height: 1.4; }
+    h3 { margin: 1.5em 0 .5em; color: #333; font-size: 18px; }
+    p { margin: .8em 0; }
+    li { margin: .35em 0; }
+    blockquote { margin: 1.2em 0; padding: .7em 1em; border-left: 4px solid #3b82c4; background: #f4f8fc; color: #34495e; }
+    pre { overflow-x: auto; padding: 14px 16px; border-radius: 6px; background: #f5f7fa; color: #263238; font: 14px/1.7 Consolas, "Microsoft YaHei", monospace; white-space: pre-wrap; }
+    code { padding: 2px 5px; border-radius: 4px; background: #f1f3f5; font: .92em Consolas, "Microsoft YaHei", monospace; }
+    pre code { padding: 0; background: transparent; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 15px; }
+    th, td { padding: 9px 10px; border: 1px solid #d9e0e7; text-align: left; vertical-align: top; }
+    th { background: #f3f7fb; color: #1f5fae; }
+    img { display: block; width: 100%; height: auto; margin: 18px auto; }
+    .caption { color: #68737d; font-size: 14px; text-align: center; }
+    .note { padding: 12px 14px; border: 1px solid #f0d28a; border-radius: 6px; background: #fff9e8; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" onclick="copyArticle()">复制排版后的正文</button>
+    <span id="status">复制后回到公众号正文框按 Ctrl+V</span>
+  </div>
+  <main id="article">
+    <p>这篇文章解决一个实际问题：</p>
+    <blockquote><strong>手机发出任务，Windows 负责连接，Linux 云服务器负责运行 Codex；当云服务器无法直接访问 OpenAI 时，再借用 Windows 上的 Clash 代理。</strong></blockquote>
+    <p>可以把三台设备理解成三个角色：</p>
+    <table><thead><tr><th>设备</th><th>做什么</th></tr></thead><tbody><tr><td>手机</td><td>发任务、看进度、回复和批准操作</td></tr><tr><td>Windows 电脑</td><td>运行 Codex App，保持连接，并运行 Clash Verge Rev</td></tr><tr><td>Linux 云服务器</td><td>保存项目，运行 Codex、测试和部署</td></tr></tbody></table>
+    <h2>先看整体连接</h2>
+    <p>手机和云服务器并不是直接连接。手机先连接 Windows 上的 Codex App，再由 Codex App 连接云服务器。</p>
+    <p>在本文场景中，国内云服务器无法直接访问 OpenAI，所以云端 Codex 的网络请求还要经过 Windows：</p>
+    <pre>手机
+  ↓ 操作
+Windows Codex App
+  ↓ SSH 连接
+Linux 云服务器 Codex
+  ↓ 代理请求
+Windows Clash Verge Rev
+  ↓
+网络代理节点 → OpenAI</pre>
+    <img src="../assets/codex三端协同架构图-公众号.png" alt="手机、Windows 与 Linux 云服务器协同使用 Codex 架构图">
+    <p class="caption">手机控制 Windows Codex App；云服务器 Codex 的代理流量通过 SSH 回到 Windows，再由 Clash 访问 OpenAI。</p>
+    <h2>为什么需要两种 SSH 连接</h2>
+    <p>这里的 SSH 可以先理解成“Windows 通往云服务器的一扇加密的门”。</p>
+    <ul><li><strong>普通 SSH</strong>：打开这扇门并登录服务器，适合 PowerShell、VS Code；</li><li><strong>带 <code>RemoteForward</code> 的 SSH</strong>：除了登录，还在门里增加一条“回程通道”，把云服务器的代理请求带回 Windows。</li></ul>
+    <p><code>RemoteForward</code> 是 SSH 的反向端口转发功能。它让云服务器上的 Codex 访问云端 <code>127.0.0.1:7897</code> 时，沿 SSH 连接回到 Windows 的 <code>127.0.0.1:7897</code>，再交给 Clash：</p>
+    <pre>云服务器 Codex
+    ↓ HTTP_PROXY / HTTPS_PROXY
+云端 127.0.0.1:7897
+    ↓ SSH RemoteForward
+Windows 127.0.0.1:7897
+    ↓
+Clash Verge Rev → 网络代理节点 → OpenAI</pre>
+    <p>因此，<strong>带 RemoteForward 的 SSH = 普通 SSH 登录 + 一条反向转发通道</strong>。它不是新的代理软件，也不是 VPN；只有明确使用云端 <code>127.0.0.1:7897</code> 的 Codex 及其子进程会走这条路径。</p>
+    <p>本文统一使用代理端口 <strong>7897</strong>。云端和 Windows 各有一个 <code>7897</code>，属于不同主机，不会冲突；但同一时间只能有一条连接占用云端 <code>7897</code>。</p>
+    <h2>一、准备 SSH 私钥和公钥</h2>
+    <p>SSH 密钥是一对文件：</p>
+    <ul><li><code>id_ed25519</code>：私钥，只留在 Windows 本机；</li><li><code>id_ed25519.pub</code>：公钥，复制到 Linux 的 <code>~/.ssh/authorized_keys</code>。</li></ul>
+    <p>服务器只保存公钥，不需要、也不应该保存私钥。</p>
+    <h3>1. 生成或检查密钥</h3>
+    <p>在 PowerShell 检查：</p><pre><code>Get-ChildItem "$env:USERPROFILE\.ssh\id_ed25519*"</code></pre>
+    <p>如果没有密钥，生成它们：</p><pre><code>ssh-keygen -t ed25519 -C "codex-windows"</code></pre>
+    <p>保存路径直接按回车使用默认值，并设置私钥口令。私钥口令不要写进配置文件或文章。</p>
+    <h3>2. 安装公钥</h3>
+    <p>先用密码、云厂商控制台或现有密钥登录服务器。在 Windows 复制公钥：</p><pre><code>Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub" | Set-Clipboard</code></pre>
+    <p>在 Linux 执行：</p><pre><code>mkdir -p ~/.ssh
+chmod 700 ~/.ssh
+nano ~/.ssh/authorized_keys</code></pre>
+    <p>把公钥完整粘贴为一行，保存后执行：</p><pre><code>chmod 600 ~/.ssh/authorized_keys</code></pre>
+    <p>公钥必须放在实际登录用户自己的目录中。例如登录用户是 <code>dev</code>，应放在 <code>/home/dev/.ssh/authorized_keys</code>，不是 <code>/root/.ssh/authorized_keys</code>。</p>
+    <h3>3. 验证密钥登录</h3>
+    <pre><code>ssh -i "$env:USERPROFILE\.ssh\id_ed25519" -o IdentitiesOnly=yes &lt;你的Linux用户名&gt;@&lt;你的服务器IP&gt;</code></pre>
+    <p>只要求输入私钥口令，通常就表示公钥认证成功。若仍要求 Linux 密码，检查公钥是否完整、用户是否正确，以及权限是否为 <code>700</code> / <code>600</code>。</p>
+    <h2>二、配置 Windows SSH</h2>
+    <p>编辑：</p><pre><code>C:\Users\&lt;你的Windows用户名&gt;\.ssh\config</code></pre>
+    <p>写入以下内容，并替换服务器 IP、Linux 用户名和 Windows 用户名：</p>
+    <pre><code># 普通登录：PowerShell、VS Code 使用
+Host aliyun_wlcb
+    HostName &lt;你的服务器IP&gt;
+    User &lt;你的Linux用户名&gt;
+    Port 22
+    IdentityFile C:/Users/&lt;你的Windows用户名&gt;/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+# Codex App 使用：登录 + RemoteForward
+Host aliyun_wlcb_proxy
+    HostName &lt;你的服务器IP&gt;
+    User &lt;你的Linux用户名&gt;
+    Port 22
+    IdentityFile C:/Users/&lt;你的Windows用户名&gt;/.ssh/id_ed25519
+    IdentitiesOnly yes
+    RemoteForward 127.0.0.1:7897 127.0.0.1:7897
+    ExitOnForwardFailure yes
+    ServerAliveInterval 30
+    ServerAliveCountMax 3</code></pre>
+    <p>两个别名的区别：</p>
+    <table><thead><tr><th>命令</th><th>用途</th></tr></thead><tbody><tr><td><code>ssh aliyun_wlcb</code></td><td>普通登录，不建立反向转发</td></tr><tr><td><code>ssh aliyun_wlcb_proxy</code></td><td>登录并建立云端 7897 到 Windows 7897 的反向转发</td></tr></tbody></table>
+    <p class="note">私钥始终留在 Windows；不要上传到手机、服务器或文章中。私钥泄露后，应立即删除服务器上的对应公钥并重新生成密钥。</p>
+    <h2>三、验证代理链路</h2>
+    <h3>1. 验证 Windows Clash</h3><p>启动 Clash Verge Rev，在 PowerShell 执行：</p><pre><code>curl.exe -x http://127.0.0.1:7897 https://api.ipify.org</code></pre><p>能返回公网 IP，说明本机代理可用。</p>
+    <h3>2. 建立带转发的 SSH</h3><pre><code>ssh aliyun_wlcb_proxy</code></pre><p>测试时保持该连接在线。实际使用 Codex App 时，由 App 管理这条连接，不要再手动启动第二条相同的转发。</p>
+    <h3>3. 在 Linux 验证云端入口</h3><p>另开一个 PowerShell，普通登录服务器：</p><pre><code>ssh aliyun_wlcb</code></pre><p>在 Linux 执行：</p><pre><code>ss -lnt | grep 7897
+curl -x http://127.0.0.1:7897 https://api.ipify.org</code></pre><p>能返回代理节点的公网 IP，说明 <code>RemoteForward</code> 成功。</p>
+    <h2>四、配置并启动云端 Codex</h2><p>在 Linux 创建 Codex 环境文件：</p><pre><code>mkdir -p ~/.codex
+nano ~/.codex/.env</code></pre><p>写入：</p><pre><code>HTTP_PROXY=http://127.0.0.1:7897
+HTTPS_PROXY=http://127.0.0.1:7897
+ALL_PROXY=http://127.0.0.1:7897
+http_proxy=http://127.0.0.1:7897
+https_proxy=http://127.0.0.1:7897
+all_proxy=http://127.0.0.1:7897
+NO_PROXY=127.0.0.1,localhost
+no_proxy=127.0.0.1,localhost</code></pre><p>保存并限制权限：</p><pre><code>chmod 600 ~/.codex/.env</code></pre><p>使用设备码登录：</p><pre><code>codex login --device-auth
+codex login status</code></pre><p>登录成功后，在项目目录启动：</p><pre><code>cd /path/to/your/project
+codex</code></pre>
+    <h2>五、手机端使用</h2><p>每次使用前：</p><ol><li>Windows 保持开机、联网且不睡眠；</li><li>启动 Clash Verge Rev；</li><li>启动 Windows Codex App，让它使用 <code>aliyun_wlcb_proxy</code>；</li><li>确认 Linux 上的 Codex 已启动；</li><li>手机连接 Codex App，发送任务并查看进度。</li></ol><p>手机不保存服务器私钥，也不直接建立 SSH。代码读写、命令执行、测试和部署都发生在 Linux 云服务器上。</p>
+    <h2>常见问题</h2><h3><code>remote port forwarding failed for listen port 7897</code></h3><p>云端 <code>7897</code> 已被另一条反向转发占用。关闭重复的 <code>aliyun_wlcb_proxy</code>，其他终端使用 <code>aliyun_wlcb</code>。</p><h3>云端没有监听 <code>7897</code></h3><p>检查 Clash、Codex App 和带转发的 SSH 是否在线。也可以临时手动建立转发：</p><pre><code>ssh -NT -R 127.0.0.1:7897:127.0.0.1:7897 aliyun_wlcb</code></pre><p>手动命令与 Codex App 的 <code>aliyun_wlcb_proxy</code> 二选一，不能同时运行。</p><h3>手机无法连接 Codex App</h3><p>检查 Windows 是否睡眠、Codex App 是否运行、本地网络是否正常。Windows App 或 SSH 断开后，手机远程控制和云端代理都会受到影响。</p>
+    <h2>最后记住</h2><pre>aliyun_wlcb        普通 SSH
+aliyun_wlcb_proxy  SSH + RemoteForward
+7897               云端代理入口 ↔ Windows Clash 入口</pre>
+  </main>
+  <script>
+    function buildClipboardArticle() {
+      const source = document.getElementById('article');
+      const article = source.cloneNode(true);
+      const properties = ['color', 'background-color', 'font-family', 'font-size', 'font-weight', 'font-style', 'line-height', 'text-align', 'vertical-align', 'margin', 'padding', 'border', 'border-radius', 'width', 'max-width', 'box-sizing', 'white-space', 'display', 'list-style-type'];
+      const originals = source.querySelectorAll('*');
+      article.querySelectorAll('*').forEach((element, index) => {
+        const original = originals[index];
+        const computed = getComputedStyle(original);
+        properties.forEach((property) => element.style.setProperty(property, computed.getPropertyValue(property)));
+      });
+      article.querySelectorAll('pre').forEach((pre) => {
+        const block = document.createElement('div');
+        block.textContent = pre.textContent;
+        block.setAttribute('style', 'margin: 14px 0; padding: 12px 14px; background: #f5f7fa; color: #263238; border: 1px solid #e1e6eb; border-radius: 6px; font: 14px/1.7 Consolas, "Microsoft YaHei", monospace; white-space: pre-wrap; word-break: break-word;');
+        pre.replaceWith(block);
+      });
+      return article;
+    }
+
+    async function copyArticle() {
+      const article = buildClipboardArticle();
+      article.style.position = 'fixed';
+      article.style.left = '-100000px';
+      article.style.top = '0';
+      document.body.appendChild(article);
+      const range = document.createRange();
+      range.selectNodeContents(article);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      const status = document.getElementById('status');
+      try {
+        const html = article.innerHTML;
+        const text = article.innerText;
+        if (navigator.clipboard && window.ClipboardItem) {
+          await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([text], { type: 'text/plain' }) })]);
+        } else if (!document.execCommand('copy')) {
+          throw new Error('copy failed');
+        }
+        status.textContent = '已复制富文本，请回到公众号正文框按 Ctrl+V';
+      } catch (error) {
+        status.textContent = '自动复制未成功，请保持选中状态并按 Ctrl+C，再回到公众号按 Ctrl+V';
+      } finally {
+        article.remove();
+      }
+    }
+  </script>
+</body>
+</html>
