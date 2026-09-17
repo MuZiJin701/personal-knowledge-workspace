@@ -4,6 +4,7 @@
 
 - [Codex](knowledge/codex/)：Codex 架构、SSH 反向代理、端口约定和排障。
 - [Command Line](knowledge/command-line/)：文本搜索、Git、apt、环境变量和终端编辑器。
+- [LaTeX](knowledge/latex/)：LaTeX、TeX Live、VS Code 工作流和常用命令。
 - [Matt Pocock Skills](knowledge/matt-pocock-skills/)：Skills 的安装、分类、调用方式和工作目录约定。
 - [Node.js](knowledge/node-js/)：本机 Node.js/npm 环境与 Node.js 生态知识。
 - [Python](knowledge/python/)：Python 工具链、uv 基础知识和项目管理。
