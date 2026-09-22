@@ -27,6 +27,10 @@
 | [latexcv](https://github.com/jankapunkt/latexcv) | 3,336 | MIT | 提供 Classic、Modern、Two Column、Sidebar、Rows、Infographics 等多套布局；最小 TeX Live 即可，明确不要求 XeTeX、LuaTeX 或 KOMA。适合先选样式再替换内容。[README](https://github.com/jankapunkt/latexcv/blob/master/README.md) | 未归档；模板内容在 [2025-02-08](https://github.com/jankapunkt/latexcv/commit/7ee9501a2dac70d92c39db4b7eb5547c428fc3ff) 仍有修正，之后主要是文档和依赖维护。[API](https://api.github.com/repos/jankapunkt/latexcv) |
 | [AltaCV](https://github.com/liantze/AltaCV) | 1,575 | LPPL-1.3 或更高版本 | 可用 pdfLaTeX、XeLaTeX 或 LuaLaTeX；出版物列表还需 Biber，示例使用 Lato 与 Roboto Slab。双栏、图标化且可配置，适合信息密度较高的 CV。[README](https://github.com/liantze/AltaCV/blob/main/README.md) · [LICENSE](https://github.com/liantze/AltaCV/blob/main/LICENSE.md) | 未归档；2025-07-30 增强纯文本/ATS 转换支持，维护状态良好。[实质提交](https://github.com/liantze/AltaCV/commit/91373530c55843533a4de12a29d28896f9b14c0d) · [API](https://api.github.com/repos/liantze/AltaCV) |
 
+## 高星经典、维护停滞
+
+- [Deedy-Resume](https://github.com/deedy/Deedy-Resume)：5,062 星（2026-09-22），Apache-2.0。经典单页双栏计算机专业简历，仅支持 XeLaTeX；Windows/Linux 应选 OpenFonts 版。默认分支最后提交于 [2015-12-02](https://github.com/deedy/Deedy-Resume/commit/6d06ba7d8eee)，且存在内容溢出等已知问题，适合借鉴样式，不作为新项目首选。
+
 ## 终端使用
 
 下载模板后进入包含主 `.tex` 文件的目录，按模板指定引擎运行：
