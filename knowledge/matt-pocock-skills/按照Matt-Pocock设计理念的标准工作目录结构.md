@@ -7,7 +7,7 @@
 ```text
 project/
 ├── AGENTS.md 或 CLAUDE.md       # Agent 的项目规则
-├── CONTEXT.md                   # 共享术语和领域背景
+├── GLOSSARY.md                  # 共享术语
 ├── docs/
 │   ├── agents/
 │   │   ├── issue-tracker.md     # Issue tracker 使用说明
@@ -19,7 +19,7 @@ project/
 └── tests/
 ```
 
-`src/`、`tests/` 和目录名称不是 Skills 强制规定的内容。小项目可以先只创建 Agent 规则、`CONTEXT.md` 和 `docs/agents/`；只有使用本地 tracker 时才创建 `.scratch/`，只有有长期架构决策时才创建 `docs/adr/`。
+`src/`、`tests/` 和目录名称不是 Skills 强制规定的内容。小项目可以先只创建 Agent 规则、`GLOSSARY.md` 和 `docs/agents/`；只有使用本地 tracker 时才创建 `.scratch/`，只有有长期架构决策时才创建 `docs/adr/`。
 
 ## 项目入口文件
 
@@ -33,20 +33,20 @@ project/
 
 ## 领域文档
 
-### `CONTEXT.md`
+### `GLOSSARY.md`
 
-+根目录的 `CONTEXT.md` 保存项目成员和 Agent 共同使用的术语、业务对象边界、容易误解的概念，以及稳定的命名约定。
+根目录的 `GLOSSARY.md` 保存项目成员和 Agent 共同使用的术语、业务对象边界、容易误解的概念，以及稳定的命名约定。
 
-默认使用单一上下文：根目录一个 `CONTEXT.md` 和 `docs/adr/`。多包仓库或多个独立领域才使用：
+默认使用单一上下文：根目录一个 `GLOSSARY.md` 和 `docs/adr/`。多包仓库或多个独立领域才使用：
 
 ```text
-CONTEXT-MAP.md
+GLOSSARY-MAP.md
 docs/adr/                         # 系统级 ADR
-src/<context>/CONTEXT.md          # 领域上下文
+src/<context>/GLOSSARY.md         # 领域术语
 src/<context>/docs/adr/           # 领域专属 ADR
 ```
 
-`grill-with-docs`、`domain-modeling` 等 Skill 会在术语或重要决策真正确定时按需更新这些文档，不需要预建空文档。当前 `domain-modeling` 还会在讨论代码库术语、编写或编辑 `CONTEXT.md`，以及记录或编辑 ADR 时触发。
+`grill-with-docs`、`domain-modeling` 等 Skill 会在术语或重要决策真正确定时按需更新这些文档，不需要预建空文档。当前 `domain-modeling` 还会在讨论代码库术语、编写或编辑 `GLOSSARY.md`，以及记录或编辑 ADR 时触发。
 
 ### `docs/agents/`
 
@@ -54,7 +54,7 @@ src/<context>/docs/adr/           # 领域专属 ADR
 
 - `issue-tracker.md`：Issue 存在哪个系统，以及如何读写
 - `triage-labels.md`：标准 triage 角色到项目实际标签的映射；仅在安装 `triage` 时需要
-- `domain.md`：Agent 在哪里读取 `CONTEXT.md` 和 ADR，以及多上下文项目的规则
+- `domain.md`：Agent 在哪里读取 `GLOSSARY.md` 和 ADR，以及多上下文项目的规则
 
 ### `docs/adr/`
 
@@ -131,7 +131,7 @@ Agent 或人实现
 ## 官方来源
 
 - [仓库 README](https://github.com/mattpocock/skills/blob/main/README.md)
-- [CONTEXT.md](https://github.com/mattpocock/skills/blob/main/CONTEXT.md)
+- [`domain-modeling`](https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md)
 - [Engineering Skills README](https://github.com/mattpocock/skills/blob/main/skills/engineering/README.md)
 - [`setup-matt-pocock-skills`](https://github.com/mattpocock/skills/blob/main/skills/engineering/setup-matt-pocock-skills/SKILL.md)
 - [本地 Issue tracker 模板](https://github.com/mattpocock/skills/blob/main/skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md)

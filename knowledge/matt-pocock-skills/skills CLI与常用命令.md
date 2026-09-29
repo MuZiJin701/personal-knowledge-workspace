@@ -72,7 +72,7 @@ skills add ./my-local-skills
 | `skills list` / `ls` | 查看已安装技能 | `skills ls -g` |
 | `skills find` | 搜索技能 | `skills find react` |
 | `skills update` | 更新已安装技能 | `skills update -g -y` |
-| `skills remove` / `rm` | 删除技能 | `skills remove -g my-skill` |
+| `skills remove` / `rm` | 删除技能 | `skills remove -g my-skill -y` |
 | `skills init` | 创建 `SKILL.md` 模板 | `skills init my-skill` |
 
 常用查询和更新：
@@ -84,7 +84,24 @@ skills update -g -y
 skills update -g my-skill -y
 ```
 
-`skills update -y` 会跳过范围询问；`skills update -g -y` 明确只更新全局技能。非交互更新遇到上游删除时，CLI 可能跳过本地删除并给出警告。
+若要将某个来源的所有技能安装到所有支持的 Agent，可运行：
+
+```powershell
+skills add mattpocock/skills --global --all
+```
+
+`--all` 是 `--skill '*' --agent '*' -y` 的简写，会发现并安装来源仓库当前提供的所有技能。2026-09-30，Matt Pocock 仓库共发现 37 个技能；CLI 报告 79 个 Agent 目标，其中 Eve 和 PromptScript 不支持全局技能安装，其余目标成功。`--all` 不会自动卸载上游已删除的技能；删除项仍需按名称执行 `skills remove -g <skill-name> -y`。
+
+`skills update -y` 会跳过范围询问；`skills update -g -y` 明确只更新全局技能。非交互更新遇到上游删除时，CLI 会提示并跳过删除，旧文件和锁记录会保留。要与上游保持一致，显式移除该技能，再运行更新确认：
+
+```powershell
+skills remove -g <skill-name> -y
+skills update -g -y
+```
+
+本机 2026-09-30 的 Matt Pocock 仓库更新中，`resolving-merge-conflicts` 已被上游删除；`skills update -g -y` 跳过了删除。本机随后执行 `skills remove --global resolving-merge-conflicts -y`，再运行更新，CLI 返回 `All global skills are up to date`，锁记录和本机目录均已清除。
+
+`skills update` 只更新已登记安装的技能，不会把上游新增技能加入本机，也不会把“所有已安装技能最新”解释为“与上游技能目录完全相同”。本机最初运行更新后才发现缺少 `implement-spec`、`pr`、`retro`；随后使用 `skills add mattpocock/skills --global --agent '*' --skill implement-spec pr retro -y` 补装。要定期完整同步某个来源，使用上面的 `skills add ... --all`；仅刷新已有安装时继续使用 `skills update -g -y`。
 
 ### 更新失败的诊断
 

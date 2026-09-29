@@ -30,3 +30,5 @@
 - [`writing-for-agents`（`4aaccb5`，8 月 5 日）](https://github.com/mattpocock/skills/commit/4aaccb5)：调整了 Codex 的可自动调用性与元数据。
 
 上游近期发行版为 [`v1.2.3`](https://github.com/mattpocock/skills/releases/tag/v1.2.3)；完整发行记录见 [`CHANGELOG.md`](https://github.com/mattpocock/skills/blob/main/CHANGELOG.md)。
+
+后续复核见[2026-09-30 两个 Skills 仓库更新记录](github-skills-updates-2026-09-30.md)，其中包含 Matt Pocock 上游删除 `resolving-merge-conflicts` 后的本机清理结果。

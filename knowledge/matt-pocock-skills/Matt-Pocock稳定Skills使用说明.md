@@ -1,26 +1,33 @@
-# Matt Pocock 稳定 25 个 Skills 使用说明
+# Matt Pocock 27 个 Skills 使用说明
 
 > 依据 [mattpocock/skills](https://github.com/mattpocock/skills) 当前 `main` 分支整理。
 
-Skill 是给编程 Agent 使用的工作方法说明。当前仓库的稳定 Skills 分为 `Engineering` 和 `Productivity` 两类；另有 `In Progress` Beta 技能和 `Misc` 辅助技能，不计入下面的 25 个稳定 Skills。
+Skill 是给编程 Agent 使用的工作方法说明。当前上游主推清单共 27 个：`Engineering` 20 个、`Productivity` 7 个；另有 6 个 `In Progress` 和 4 个 `Misc`，因此仓库合计 37 个。这里的“27 个”仅指主推清单，不代表其余分类无法安装。
 
-当前已发布版本为 1.2.3，更新重点是：跨 Agent 的子代理描述、排障过程的敏感信息脱敏，以及 `wizard` 按阶段数量显示进度。
+最新发布版本仍为 1.2.3；`main` 在该版本之后继续变化。到 2026-09-30，工程工作流新增 `/implement-spec`、`/pr` 和 `/retro`，把术语文件约定从 `CONTEXT.md` / `CONTEXT-MAP.md` 改为 `GLOSSARY.md` / `GLOSSARY-MAP.md`，并移除了 `resolving-merge-conflicts`。本机已安装上游现存的 37 个技能；全量安装命令见下文。`skills update` 只刷新已安装项，不会加入新增技能或清理上游删除项。
 
-官方 `main` 在 2026-08-13 又更新了 `domain-modeling` 的触发描述（尚未形成新的版本号）：讨论代码库术语、编写或编辑 `CONTEXT.md`，以及记录或编辑 ADR 时可触发；移除了“其他 Skill 需要维护领域模型”的限定。
+当前 `domain-modeling` 在讨论代码库术语、编写或编辑 `GLOSSARY.md`，以及记录或编辑 ADR 时可触发；不再使用旧的 `CONTEXT.md` 命名。
 
 2026-08-15 的 `main`（同样尚未形成新的版本号）又统一了 Skill 间的调用规则：依赖其他 Skill 时显式调用 Skill tool，每次调用一个；只有 Model-invoked Skill 可被其他 Skill 调用。User-invoked Skill 必须提示用户主动输入 `/skill`，不能由其他 Skill 代调用。依据[官方调用规则](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md)及[最新提交](https://github.com/mattpocock/skills/commit/068b6e0)。
 
 2026-08-20 的全局更新涉及 28 个已安装的 Matt Pocock skill，包括稳定 Engineering、Productivity、Beta `In Progress` 和 `Misc`。其中多数是格式维护；已确认所有更新写入 `%USERPROFILE%\.agents\skills\`，不表示稳定 Skill 总数增加。详见[近期更新核查](2026-08-20-mattpocock-skills-近期更新核查.md)。
 
+2026-09-30 的上游变更、本机删除已移除技能的操作以及 wx skill 的 resolver 更新见[两仓库更新核查](github-skills-updates-2026-09-30.md)。
+
 ## 在 Codex 中安装
 
 ```bash
-# 全局安装，并安装到 Codex
-skills add mattpocock/skills --global --agent codex
+# 全局安装仓库的全部技能到所有支持的 Agent
+skills add mattpocock/skills --global --all
 
-# 项目级安装
+# 如只需 Codex，可显式指定 Agent 并选择全部技能
+skills add mattpocock/skills --global --agent codex --skill '*'
+
+# 项目级安装到 Codex
 skills add mattpocock/skills --agent codex
 ```
+
+CLI 当前报告 79 个全局 Agent 目标；Eve 和 PromptScript 不支持全局技能安装，其余目标可安装。上游目录若删除技能，需另外运行 `skills remove -g <skill-name> -y`。
 
 安装后，在项目中运行一次：
 
@@ -28,7 +35,7 @@ skills add mattpocock/skills --agent codex
 /setup-matt-pocock-skills
 ```
 
-它会配置 Issue tracker、triage 标签，以及 `CONTEXT.md` 和 ADR 的位置。已有 `CLAUDE.md` 时优先编辑它；否则使用 `AGENTS.md`，两者都没有时再询问创建哪一个。
+它会配置 Issue tracker、triage 标签，以及 `GLOSSARY.md` 和 ADR 的位置。已有 `CLAUDE.md` 时优先编辑它；否则使用 `AGENTS.md`，两者都没有时再询问创建哪一个。
 
 ## 调用方式
 
@@ -37,9 +44,9 @@ skills add mattpocock/skills --agent codex
 
 Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill。User-invoked Skill 不能被其他 Skill 调用；如果缺少这类初始化 Skill，应提示用户主动执行对应的 `/skill`。
 
-## Engineering：18 个
+## Engineering：20 个
 
-### User-invoked：9 个
+### User-invoked：11 个
 
 | Skill | 用途 |
 |---|---|
@@ -51,7 +58,9 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 | `/to-spec` | 把已有讨论整理成 spec 并发布到 Issue tracker |
 | `/to-tickets` | 把 spec 或计划拆成带阻塞关系的实施任务 |
 | `/implement` | 按 spec 或任务实现代码，并接入测试和代码审查 |
+| `/implement-spec` | 在一个集成分支上按任务图实现完整 spec，并行处理已解除阻塞的任务 |
 | `/wayfinder` | 为跨多个会话的大型工作建立决策地图 |
+| `/retro` | 回顾一次工程会话，按严重程度建议改善 Agent 环境 |
 
 ### Model-invoked：9 个
 
@@ -61,10 +70,10 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 | `diagnosing-bugs` | 按反馈循环诊断复杂 Bug 和性能回归，并先脱敏命令、输出和捕获文件 |
 | `research` | 调查一手资料并生成带引用的 Markdown 研究记录 |
 | `tdd` | 以垂直切片执行测试驱动开发 |
-| `domain-modeling` | 讨论代码库术语，或编写、编辑 `CONTEXT.md` 与 ADR 时建立和校准领域模型 |
+| `domain-modeling` | 讨论代码库术语，或编写、编辑 `GLOSSARY.md` 与 ADR 时建立和校准领域模型 |
 | `codebase-design` | 设计隐藏实现、暴露小接口的深模块，并用通用子代理并行比较方案 |
 | `code-review` | 从 Standards 和 Spec 两个维度审查变更，子代理描述兼容不同 Agent |
-| `resolving-merge-conflicts` | 按意图解决 Git merge 或 rebase 冲突 |
+| `pr` | 为 pull request 撰写说明，包含变更摘要、前后证据和合并风险判断 |
 | `wizard` | 为必须由人完成的外部操作生成交互式 Bash 向导，按阶段数量显示进度 |
 
 ## Productivity：7 个
@@ -89,7 +98,7 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 ## 推荐流程
 
 ```text
-复杂功能：/grill-with-docs → /to-spec → /to-tickets → /implement → /code-review
+复杂功能：/grill-with-docs → /to-spec → /to-tickets → /implement 或 /implement-spec → /code-review
 复杂 Bug：描述问题 → diagnosing-bugs → 修复 → 回归测试 → code-review
 大型工作：/wayfinder → /to-spec → /to-tickets → /implement
 ```
@@ -102,4 +111,4 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 - `skills/misc/`：不常用的辅助工具，不进入官方插件
 - `skills/deprecated/`：已废弃技能，目前为空
 
-完整出处：仓库 [README](https://github.com/mattpocock/skills/blob/main/README.md)、[Engineering README](https://github.com/mattpocock/skills/blob/main/skills/engineering/README.md)、[Productivity README](https://github.com/mattpocock/skills/blob/main/skills/productivity/README.md) 和[调用规则](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md)。
+完整出处：仓库 [README](https://github.com/mattpocock/skills/blob/main/README.md)、[Engineering README](https://github.com/mattpocock/skills/blob/main/skills/engineering/README.md)、[Productivity README](https://github.com/mattpocock/skills/blob/main/skills/productivity/README.md)、[更新日志](https://github.com/mattpocock/skills/blob/main/CHANGELOG.md)和[调用规则](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md)。

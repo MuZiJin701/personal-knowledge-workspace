@@ -1,6 +1,6 @@
 # 本机 Node.js 与 npm 环境记录
 
-> 更新日期：2026-08-20。内容来自本机 Scoop、fnm、Node.js 和 npm 的只读检查。
+> Node.js/npm 环境快照：2026-08-20；Skills CLI 状态复核：2026-09-30。
 
 ## 当前结论
 
@@ -91,12 +91,14 @@ npm explain -g node-domexception
 
 ## skills CLI
 
-当前 LTS 环境中的 `skills` 版本为 `1.5.23`。更新全局安装的 skills：
+当前 LTS 环境中的 `skills` 版本为 `1.7.0`。2026-09-30 已移除上游已删除的 `resolving-merge-conflicts`，并将 Matt Pocock 仓库现存的 37 个技能全局安装到所有支持的 Agent。CLI 报告 79 个 Agent 目标，其中 Eve 和 PromptScript 不支持全局安装。`skills update` 只更新已安装项目，不会加入新增技能；完整同步来源时使用 `add --all`：
 
 ```powershell
 skills update -g
 skills update -g -y
+skills add mattpocock/skills --global --all
 skills list -g
+skills remove -g <skill-name> -y
 ```
 
 skill 来源和版本记录在：
