@@ -2,6 +2,8 @@
 
 检查日期：2026-09-30（Asia/Shanghai）
 
+本文保留当日核查结果。后续 `v1.3.1` 发布、`ask-matt` 路由修正和本机安装复核见[2026-10-05 更新记录](github-skills-updates-2026-10-05.md)。
+
 ## 结论
 
 - `mattpocock/skills` 的 `resolving-merge-conflicts` 是上游真实删除，不是单纯改名或移动。2026-09-24 的提交 `daa01d8` 明确删除了 Skill 文件、Codex 元数据、文档页以及各处入口；提交说明为“不再需要”。[删除提交](https://github.com/mattpocock/skills/commit/daa01d8aa68ad5c61b68970ec2018d0ce9567be6)

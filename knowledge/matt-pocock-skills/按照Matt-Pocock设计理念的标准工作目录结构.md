@@ -25,10 +25,6 @@ project/
 
 `setup-matt-pocock-skills` 按以下顺序选择入口文件：
 
-1. 已有 `CLAUDE.md`：编辑它
-2. 没有 `CLAUDE.md`、但有 `AGENTS.md`：编辑它
-3. 两者都没有：询问创建哪一个
-
 不会为了运行 Skill 同时创建两个入口文件。
 
 ## 领域文档
@@ -52,10 +48,6 @@ src/<context>/docs/adr/           # 领域专属 ADR
 
 这是工程 Skill 的配置目录，不是普通知识文档目录：
 
-- `issue-tracker.md`：Issue 存在哪个系统，以及如何读写
-- `triage-labels.md`：标准 triage 角色到项目实际标签的映射；仅在安装 `triage` 时需要
-- `domain.md`：Agent 在哪里读取 `GLOSSARY.md` 和 ADR，以及多上下文项目的规则
-
 ### `docs/adr/`
 
 ADR（Architecture Decision Record）记录重要技术选择、原因、被放弃的替代方案和影响。不要为每个小决定创建 ADR。
@@ -63,11 +55,6 @@ ADR（Architecture Decision Record）记录重要技术选择、原因、被放�
 ## Issue tracker 和本地结构
 
 Issue tracker 可以是：
-
-- GitHub Issues
-- GitLab Issues
-- Linear 或其他项目明确约定的系统
-- 本地 Markdown 文件
 
 使用本地 Markdown 时，当前约定是：
 
@@ -83,11 +70,6 @@ Issue tracker 可以是：
 每个实施任务独立成文件，不使用合并的 `tickets.md`。远程 tracker 则按平台创建 Issue，并使用平台支持的阻塞关系或子 Issue 关系。
 
 ## 术语和 triage
-
-- **Issue tracker**：存放和跟踪 Issue 的工具
-- **Issue**：tracker 中的一项具体工作，可以是 Bug、功能、spec 或实施切片
-- **Decision ticket**：`wayfinder` 中表示待解决决策问题的子 Issue
-- **Triage**：按类别和状态处理 Issue 或外部 PR
 
 当前 triage 有两个类别角色和五个状态角色：
 
@@ -111,16 +93,16 @@ Skills 使用标准角色名；项目可以在 `docs/agents/triage-labels.md` �
 ```text
 用户想法
    ↓
-需求澄清与术语统一
+/grill-with-docs：需求澄清与术语统一
    ↓
-spec 或 Issue
+/to-spec → /to-tickets（跨会话工作时）
    ↓
-Triage
+/implement 或 /implement-spec
    ↓
-Agent 或人实现
-   ↓
-测试、反馈、代码审查
+测试、反馈、code-review → 用户主动 /retro
 ```
+
+`triage` 是外部 Bug 报告、功能请求等原始 Issue 的入口；`to-tickets` 已生成的实施任务直接进入实现流程。复杂 Bug 则从 `diagnosing-bugs` 进入，完成修复和回归检查后在同一会话主动运行 `/retro`；若缺少适合测试的模块边界，再由用户启动 `/improve-codebase-architecture`。参见[2026-10-05 路由修正](github-skills-updates-2026-10-05.md)。
 
 重点是让 Agent 少猜测、少重复询问，并让每一步都有可验证的反馈，而不是预建大量目录或文档。
 
@@ -129,10 +111,3 @@ Agent 或人实现
 流程中的 `/skill` 表示用户主动调用。Skill 内部依赖应显式调用 Skill tool，且一次只调用一个 Model-invoked Skill；User-invoked Skill 只能提示用户执行，不能由其他 Skill 代调用。
 
 ## 官方来源
-
-- [仓库 README](https://github.com/mattpocock/skills/blob/main/README.md)
-- [`domain-modeling`](https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md)
-- [Engineering Skills README](https://github.com/mattpocock/skills/blob/main/skills/engineering/README.md)
-- [`setup-matt-pocock-skills`](https://github.com/mattpocock/skills/blob/main/skills/engineering/setup-matt-pocock-skills/SKILL.md)
-- [本地 Issue tracker 模板](https://github.com/mattpocock/skills/blob/main/skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md)
-- [调用规则](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md)

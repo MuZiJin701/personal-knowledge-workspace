@@ -1,10 +1,10 @@
 # Matt Pocock 27 个 Skills 使用说明
 
-> 依据 [mattpocock/skills](https://github.com/mattpocock/skills) 当前 `main` 分支整理。
+> 2026-10-05 复核，依据 [mattpocock/skills v1.3.1](https://github.com/mattpocock/skills/releases/tag/v1.3.1)（`main` HEAD `24fe0ef`）整理。
 
 Skill 是给编程 Agent 使用的工作方法说明。当前上游主推清单共 27 个：`Engineering` 20 个、`Productivity` 7 个；另有 6 个 `In Progress` 和 4 个 `Misc`，因此仓库合计 37 个。这里的“27 个”仅指主推清单，不代表其余分类无法安装。
 
-最新发布版本仍为 1.2.3；`main` 在该版本之后继续变化。到 2026-09-30，工程工作流新增 `/implement-spec`、`/pr` 和 `/retro`，把术语文件约定从 `CONTEXT.md` / `CONTEXT-MAP.md` 改为 `GLOSSARY.md` / `GLOSSARY-MAP.md`，并移除了 `resolving-merge-conflicts`。本机已安装上游现存的 37 个技能；全量安装命令见下文。`skills update` 只刷新已安装项，不会加入新增技能或清理上游删除项。
+最新发布版本为 `v1.3.1`。此前已进入 `main` 的 `/implement-spec`、`/pr`、`/retro`，`GLOSSARY.md` / `GLOSSARY-MAP.md` 命名，以及删除 `resolving-merge-conflicts` 等变更，已归入 1.3.0 的发布记录。本轮技能内容只修正 `ask-matt` 的 Bug 复盘路由；本机 37 个技能目录中的 101 个上游文件与当前 HEAD 一致。`skills update` 只刷新已安装项，不会加入新增技能或清理上游删除项。
 
 当前 `domain-modeling` 在讨论代码库术语、编写或编辑 `GLOSSARY.md`，以及记录或编辑 ADR 时可触发；不再使用旧的 `CONTEXT.md` 命名。
 
@@ -13,6 +13,8 @@ Skill 是给编程 Agent 使用的工作方法说明。当前上游主推清单�
 2026-08-20 的全局更新涉及 28 个已安装的 Matt Pocock skill，包括稳定 Engineering、Productivity、Beta `In Progress` 和 `Misc`。其中多数是格式维护；已确认所有更新写入 `%USERPROFILE%\.agents\skills\`，不表示稳定 Skill 总数增加。详见[近期更新核查](2026-08-20-mattpocock-skills-近期更新核查.md)。
 
 2026-09-30 的上游变更、本机删除已移除技能的操作以及 wx skill 的 resolver 更新见[两仓库更新核查](github-skills-updates-2026-09-30.md)。
+
+2026-10-05 的 `ask-matt` 修正、`v1.3.1` 发布和本机安装结果见[最新更新核查](github-skills-updates-2026-10-05.md)。
 
 ## 在 Codex 中安装
 
@@ -27,7 +29,7 @@ skills add mattpocock/skills --global --agent codex --skill '*'
 skills add mattpocock/skills --agent codex
 ```
 
-CLI 当前报告 79 个全局 Agent 目标；Eve 和 PromptScript 不支持全局技能安装，其余目标可安装。上游目录若删除技能，需另外运行 `skills remove -g <skill-name> -y`。
+`--all` 显式选择全部技能和全部 Agent。单用 `add -g -y` 默认选择检测到的 Agent 和通用目录目标；日志中的“79 agents”不是成功安装数量。2026-10-05 的用户日志中，37 次失败均为 PromptScript 不支持全局安装；本机清单仍有 37 个技能，包括 Codex 和 Claude Code 入口。完整解释见[CLI 说明](skills%20CLI与常用命令.md)。上游目录若删除技能，需另外运行 `skills remove -g <skill-name> -y`。
 
 安装后，在项目中运行一次：
 
@@ -50,7 +52,7 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 
 | Skill | 用途 |
 |---|---|
-| `/ask-matt` | 根据任务选择合适的 Skill 或流程 |
+| `/ask-matt` | 根据任务选择 Skill 或流程；Bug 修复后指向同一会话中的 `/retro` |
 | `/grill-with-docs` | 澄清需求，同时维护术语和架构决策 |
 | `/triage` | 按状态机处理 Issue 和外部 PR |
 | `/improve-codebase-architecture` | 发现并筛选代码库的架构改进机会，使用跨 Agent 的子代理探索 |
@@ -99,11 +101,13 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 
 ```text
 复杂功能：/grill-with-docs → /to-spec → /to-tickets → /implement 或 /implement-spec → /code-review
-复杂 Bug：描述问题 → diagnosing-bugs → 修复 → 回归测试 → code-review
+复杂 Bug：描述问题 → diagnosing-bugs → 修复与回归检查 → 同一会话主动 /retro
 大型工作：/wayfinder → /to-spec → /to-tickets → /implement
 ```
 
 小修改可以直接实现，再运行 `code-review`。不确定该从哪里开始时，先使用 `/ask-matt`。
+
+Bug 修复后，`/retro` 回顾怎样预防问题；若发现缺少适合测试的模块边界，再由用户启动 `/improve-codebase-architecture`。这两个入口由用户调用，`diagnosing-bugs` 不会自动调用它们。[v1.3.1 诊断说明](https://github.com/mattpocock/skills/blob/v1.3.1/docs/engineering/diagnosing-bugs.md)
 
 ## 其他仓库分类
 

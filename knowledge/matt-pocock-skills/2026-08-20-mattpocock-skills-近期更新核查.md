@@ -32,3 +32,5 @@
 上游近期发行版为 [`v1.2.3`](https://github.com/mattpocock/skills/releases/tag/v1.2.3)；完整发行记录见 [`CHANGELOG.md`](https://github.com/mattpocock/skills/blob/main/CHANGELOG.md)。
 
 后续复核见[2026-09-30 两个 Skills 仓库更新记录](github-skills-updates-2026-09-30.md)，其中包含 Matt Pocock 上游删除 `resolving-merge-conflicts` 后的本机清理结果。
+
+最新复核见[2026-10-05 Matt Pocock Skills 更新记录](github-skills-updates-2026-10-05.md)，包含 `v1.3.1` 发布、`ask-matt` 路由修正和 37 个技能的本机内容比对。

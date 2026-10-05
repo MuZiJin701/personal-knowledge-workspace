@@ -90,7 +90,9 @@ skills update -g my-skill -y
 skills add mattpocock/skills --global --all
 ```
 
-`--all` 是 `--skill '*' --agent '*' -y` 的简写，会发现并安装来源仓库当前提供的所有技能。2026-09-30，Matt Pocock 仓库共发现 37 个技能；CLI 报告 79 个 Agent 目标，其中 Eve 和 PromptScript 不支持全局技能安装，其余目标成功。`--all` 不会自动卸载上游已删除的技能；删除项仍需按名称执行 `skills remove -g <skill-name> -y`。
+`--all` 是 `--skill '*' --agent '*' -y` 的简写，会发现并安装来源仓库当前提供的所有技能，并显式选择全部 Agent。它不会自动卸载上游已删除的技能；删除项仍需按名称执行 `skills remove -g <skill-name> -y`。
+
+技能选择与 Agent 选择是两个独立范围。用户在 PowerShell 执行 `skills add mattpocock/skills -g -y` 时，未指定技能名会安装发现的全部技能；未指定 Agent 则默认选择检测到的 Agent，并补入通用目录目标。日志中的 `79 agents` 是 CLI 已知 Agent 定义的总数，不是成功安装数。在 Agent 内执行时，CLI 还可能自动选择当前运行环境；要稳定选择全部目标，使用 `--all` 或 `--agent '*'`。[CLI v1.7.0 安装源码](https://github.com/vercel-labs/skills/blob/v1.7.0/src/add.ts)
 
 `skills update -y` 会跳过范围询问；`skills update -g -y` 明确只更新全局技能。非交互更新遇到上游删除时，CLI 会提示并跳过删除，旧文件和锁记录会保留。要与上游保持一致，显式移除该技能，再运行更新确认：
 
@@ -112,6 +114,8 @@ skills add mattpocock/skills/skills/engineering/<skill-name> -g -s <skill-name> 
 ```
 
 本机 2026-08-20 的四项 Matt Pocock skill 更新曾显示失败，但直接执行后确认已覆盖到 `%USERPROFILE%\.agents\skills\`。诊断输出显示额外的 PromptScript 目标不支持全局安装；这不影响 Codex 或 `.agents` 目录中的技能。随后 `skills update -g -y` 已验证所有全局技能为最新。
+
+`Failed to install N` 统计失败的“技能 × Agent”组合。2026-10-05 的重装日志中，37 个技能各自在 PromptScript 目标失败一次，原因均为它不支持全局安装；其他目标的成功安装仍然有效。本机清单仍为 37 个 Matt 技能，每项显示 60 个 Agent 入口；全部 101 个上游文件也与当前 HEAD 一致。不能据此推导全部 79 种 Agent 已安装或能加载技能，详见[本次核查](github-skills-updates-2026-10-05.md)。
 
 CLI 会依次检查所有已配置的 Skill 来源。`Found N global update(s)` 是所有来源的全局更新总数；后面的每个 `Updating ...` 才对应一个实际更新的 Skill，因此一次命令可能同时更新多个仓库来源、稳定 Skill 和 Beta Skill。
 
