@@ -2,6 +2,8 @@
 
 检查日期：2026-10-05（Asia/Shanghai）。接续 [2026-09-30 核查](github-skills-updates-2026-09-30.md)，比较当时已进入 `main` 的代码与本次检查到的上游 HEAD。
 
+本文保留当日快照；后续五项修复、38 项技能清单和工作区规则同步见 [2026-10-07 更新核查](github-skills-updates-2026-10-07.md)。
+
 ## 结论
 
 本次技能目录内只有 `ask-matt/SKILL.md` 发生变化：修复 bug 后的复盘入口改为 `/retro`，并删除“`diagnosing-bugs` 会从 post-mortem 自动交接给 `improve-codebase-architecture`”的过时描述。`diagnosing-bugs` 的说明页同步修正，其 Skill 实现没有再次变化。上游已经发布 `v1.3.1`，37 个技能的数量和分类均未改变。[修正提交](https://github.com/mattpocock/skills/commit/c5b98691982c4f0d3a5e40ab09566b3b84721e00) [发布页](https://github.com/mattpocock/skills/releases/tag/v1.3.1)

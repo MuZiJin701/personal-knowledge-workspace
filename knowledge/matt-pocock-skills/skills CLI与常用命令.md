@@ -105,6 +105,10 @@ skills update -g -y
 
 `skills update` 只更新已登记安装的技能，不会把上游新增技能加入本机，也不会把“所有已安装技能最新”解释为“与上游技能目录完全相同”。本机最初运行更新后才发现缺少 `implement-spec`、`pr`、`retro`；随后使用 `skills add mattpocock/skills --global --agent '*' --skill implement-spec pr retro -y` 补装。要定期完整同步某个来源，使用上面的 `skills add ... --all`；仅刷新已有安装时继续使用 `skills update -g -y`。
 
+2026-10-07 的更新成功刷新了 5 个 Matt 技能；随后全量 `add` 将新增的实验技能 `chief-of-staff` 补入，使本机数量从 37 增至 38。技能仓库最新 Release 仍为 `v1.3.1`，但 Git 源安装已取得其后的 `main` 变更；本机 CLI 版本为 `1.7.1`，二者独立计数。[本次核查](github-skills-updates-2026-10-07.md)
+
+安装范围也不包含技能曾经生成的项目文档。比如 `setup-matt-pocock-skills` 的 tracker 模板更新后，现有 `docs/agents/issue-tracker.md` 需要另行同步；更新器不会修改它。上游仓库自身的 GitHub Actions 也不会随技能安装部署到用户项目。
+
 ### 更新失败的诊断
 
 `✗ Failed to update <skill>` 只表示内部重装子进程未得到成功结果；它可能不显示该子进程的具体错误。先用同一来源和技能名直接重装，以保留完整输出：
@@ -115,7 +119,7 @@ skills add mattpocock/skills/skills/engineering/<skill-name> -g -s <skill-name> 
 
 本机 2026-08-20 的四项 Matt Pocock skill 更新曾显示失败，但直接执行后确认已覆盖到 `%USERPROFILE%\.agents\skills\`。诊断输出显示额外的 PromptScript 目标不支持全局安装；这不影响 Codex 或 `.agents` 目录中的技能。随后 `skills update -g -y` 已验证所有全局技能为最新。
 
-`Failed to install N` 统计失败的“技能 × Agent”组合。2026-10-05 的重装日志中，37 个技能各自在 PromptScript 目标失败一次，原因均为它不支持全局安装；其他目标的成功安装仍然有效。本机清单仍为 37 个 Matt 技能，每项显示 60 个 Agent 入口；全部 101 个上游文件也与当前 HEAD 一致。不能据此推导全部 79 种 Agent 已安装或能加载技能，详见[本次核查](github-skills-updates-2026-10-05.md)。
+`Failed to install N` 统计失败的“技能 × Agent”组合。2026-10-07 的重装日志中，38 个技能各自在 PromptScript 目标失败一次，原因均为它不支持全局安装；其他目标的成功安装仍然有效。本机 38 项安装记录的目录哈希，以及归一化换行后的 103 个上游文件，均与固定 HEAD 一致。不能据此推导全部 79 种 Agent 已安装或能加载技能，详见[本次核查](github-skills-updates-2026-10-07.md)。
 
 CLI 会依次检查所有已配置的 Skill 来源。`Found N global update(s)` 是所有来源的全局更新总数；后面的每个 `Updating ...` 才对应一个实际更新的 Skill，因此一次命令可能同时更新多个仓库来源、稳定 Skill 和 Beta Skill。
 

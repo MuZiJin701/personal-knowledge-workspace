@@ -10,7 +10,7 @@
 - 主题目录使用小写英文 `kebab-case`；已有文件名保持稳定，新文件优先使用清晰的英文 `kebab-case`。
 - 普通知识、教程和排障总结直接放在主题根部；长期附件放在主题的 `assets/<content>/`。
 - 临时材料使用系统临时目录；技能产物的位置和保留范围遵循技能及当前任务要求。
-- 主题只有在确实需要额外导航时才创建 `README.md`；`CONTEXT.md` 和 ADR 均按需创建。
+- 主题只有在确实需要额外导航时才创建 `README.md`；`GLOSSARY.md` 和 ADR 均按需创建。
 - `docs/agents/` 只保存工程技能和工作流配置，不保存普通知识。
 
 ## 内容与验证
@@ -28,8 +28,8 @@
 
 ### Triage labels
 
-问题分诊使用五个默认 triage 标签。映射见 `docs/agents/triage-labels.md`。
+问题分诊使用两个类别标签和五个默认状态标签。映射见 `docs/agents/triage-labels.md`。
 
 ### Domain docs
 
-领域建模先从 `CONTEXT-MAP.md` 定位相关上下文，再按 `docs/agents/domain.md` 消费或维护术语与决策。
+领域建模先从 `GLOSSARY-MAP.md` 定位相关上下文，再按 `docs/agents/domain.md` 消费或维护术语与决策。

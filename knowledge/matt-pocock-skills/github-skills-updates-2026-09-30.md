@@ -4,11 +4,13 @@
 
 本文保留当日核查结果。后续 `v1.3.1` 发布、`ask-matt` 路由修正和本机安装复核见[2026-10-05 更新记录](github-skills-updates-2026-10-05.md)。
 
+最新五项修复、新实验技能和工作区文档同步见 [2026-10-07 更新核查](github-skills-updates-2026-10-07.md)。
+
 ## 结论
 
 - `mattpocock/skills` 的 `resolving-merge-conflicts` 是上游真实删除，不是单纯改名或移动。2026-09-24 的提交 `daa01d8` 明确删除了 Skill 文件、Codex 元数据、文档页以及各处入口；提交说明为“不再需要”。[删除提交](https://github.com/mattpocock/skills/commit/daa01d8aa68ad5c61b68970ec2018d0ce9567be6)
 - `skills update -g -y` 提示 `Skill paths changed; resolving via Git clone`，说明更新器判断其已记录的技能路径映射发生变化，因而改用 Git 克隆解析；这段输出没有指出哪条路径触发，也不能据此断言该技能被改名/搬家。上游 Git 历史可确认 `resolving-merge-conflicts` 被删除，而非移动：该文件 2026-09-24 从 `skills/engineering/` 删除，至检查到的 2026-09-29 `main` HEAD 未重加。GitHub 搜索/旧 issue 页面若仍显示这个路径，不能代替当前分支文件状态。
-- 初次更新后，`C:\Users\30733\.agents\.skill-lock.json` 仍记录 `resolving-merge-conflicts` 的旧路径和 2026-08-20 的更新时间，本机目录也仍在；这是 `-y` 跳过删除的结果。随后已执行 `skills remove --global resolving-merge-conflicts -y`，确认锁记录与本机目录均已清除；再运行 `skills update -g -y`，CLI 返回所有全局技能均为最新。其余 Matt 技能记录在 2026-09-29 更新。锁文件是本机状态证据，不是上游事实来源。
+- 初次更新后，`%USERPROFILE%\.agents\.skill-lock.json` 仍记录 `resolving-merge-conflicts` 的旧路径和 2026-08-20 的更新时间，本机目录也仍在；这是 `-y` 跳过删除的结果。随后已执行 `skills remove --global resolving-merge-conflicts -y`，确认锁记录与本机目录均已清除；再运行 `skills update -g -y`，CLI 返回所有全局技能均为最新。其余 Matt 技能记录在 2026-09-29 更新。锁文件是本机状态证据，不是上游事实来源。
 - `skills update -g -y` 只更新本机已安装的技能，不会加入上游新技能。复核发现缺少 `implement-spec`、`pr`、`retro` 后，已通过 `skills add mattpocock/skills --global --agent '*' --skill implement-spec pr retro -y` 补齐；本机现在安装上游现存的 37 个 Matt Pocock 技能。CLI 报告 79 个 Agent 目标，Eve 和 PromptScript 不支持全局安装，其余目标成功。后续全量同步可用 `skills add mattpocock/skills --global --all`；被上游删除的技能仍需显式 `skills remove -g <skill-name> -y`。
 
 ## mattpocock/skills 更新内容

@@ -1,6 +1,6 @@
 # 本机 Node.js 与 npm 环境记录
 
-> Node.js/npm 环境快照：2026-08-20；Skills CLI 状态复核：2026-10-05。
+> Node.js/npm 环境快照：2026-08-20；Skills CLI 状态复核：2026-10-07。
 
 ## 当前结论
 
@@ -91,7 +91,7 @@ npm explain -g node-domexception
 
 ## skills CLI
 
-当前 LTS 环境中的 `skills` 版本为 `1.7.0`，与 Matt Pocock 技能仓库的发布版本 `v1.3.1` 分别计数。2026-10-05 的更新只报告 `ask-matt`；随后用户全量重装仍发现 37 个技能，37 次失败均来自不支持全局安装的 PromptScript。本机清单每项显示 60 个 Agent 入口，Codex 和 Claude Code 均有全部 37 项；技能目录中 101 个上游文件与当前 HEAD 一致。详细证据见[更新核查](../matt-pocock-skills/github-skills-updates-2026-10-05.md)。
+本机 `skills --version` 在 2026-10-07 返回 `1.7.1`，与 Matt Pocock 技能仓库的发布版本 `v1.3.1` 分别计数。此次更新报告 5 项修复；随后全量 `add` 补入实验技能 `chief-of-staff`，共发现 38 项。38 次失败均来自不支持全局安装的 PromptScript；本机 38 项安装记录和 103 个上游文件均与固定 HEAD `6fd9479` 一致。这不验证每个 Agent 的运行时加载。详细证据见[更新核查](../matt-pocock-skills/github-skills-updates-2026-10-07.md)。
 
 `skills update` 只更新已安装项目，不会加入新增技能；指定全部技能及全部 Agent 时使用 `add --all`。单用 `add -g -y` 默认选择检测到的 Agent 和通用目录目标，日志中的 `79 agents` 是已知定义总数。常用命令：
 

@@ -7,7 +7,7 @@
 ## 浏览
 
 - [知识主题索引](INDEX.md)
-- [领域上下文地图](CONTEXT-MAP.md)
+- [领域术语地图](GLOSSARY-MAP.md)
 - [Agent 工作流配置](docs/agents/)
 
 长期内容位于 `knowledge/`；需要生命周期管理的工作使用 GitHub Issues。

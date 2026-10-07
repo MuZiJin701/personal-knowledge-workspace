@@ -25,6 +25,10 @@ project/
 
 `setup-matt-pocock-skills` 按以下顺序选择入口文件：
 
+1. 有 `CLAUDE.md` 时编辑它。
+2. 否则编辑已有 `AGENTS.md`。
+3. 两者都没有时，由用户选择创建哪一个。
+
 不会为了运行 Skill 同时创建两个入口文件。
 
 ## 领域文档
@@ -48,6 +52,12 @@ src/<context>/docs/adr/           # 领域专属 ADR
 
 这是工程 Skill 的配置目录，不是普通知识文档目录：
 
+- `issue-tracker.md`：记录 tracker、父子任务、阻塞关系和操作命令。
+- `triage-labels.md`：将技能角色映射到项目标签。
+- `domain.md`：记录术语与 ADR 的位置、读取规则。
+
+技能更新只覆盖安装目录，不会重写这些项目文件。2026-10-06 的 GitHub 模板修复需要同步父子 Issue 命令和外部 PR 的 REST 列表；保留项目原有的 tracker、标签映射和 PR 分诊开关。详见[2026-10-07 更新核查](github-skills-updates-2026-10-07.md)。
+
 ### `docs/adr/`
 
 ADR（Architecture Decision Record）记录重要技术选择、原因、被放弃的替代方案和影响。不要为每个小决定创建 ADR。
@@ -55,6 +65,9 @@ ADR（Architecture Decision Record）记录重要技术选择、原因、被放�
 ## Issue tracker 和本地结构
 
 Issue tracker 可以是：
+
+- GitHub（`gh`）、GitLab（`glab`）或本地 Markdown：上游提供模板。
+- 其他 tracker：用户描述流程，写入 `docs/agents/issue-tracker.md`；上游不提供 Jira、Linear 等工具的一等模板。
 
 使用本地 Markdown 时，当前约定是：
 
@@ -67,7 +80,7 @@ Issue tracker 可以是：
     └── 02-<slug>.md
 ```
 
-每个实施任务独立成文件，不使用合并的 `tickets.md`。远程 tracker 则按平台创建 Issue，并使用平台支持的阻塞关系或子 Issue 关系。
+每个实施任务独立成文件，不使用合并的 `tickets.md`。远程 tracker 按平台创建 Issue：从已有 spec 或 map Issue 拆出的任务建立父子归属，执行依赖另外建立原生阻塞边；已有原生边时省略正文的 `Blocked by`，不支持时才回退为文本。GitHub 操作见工作区的 [issue-tracker.md](../../docs/agents/issue-tracker.md)。
 
 ## 术语和 triage
 
@@ -110,4 +123,10 @@ Skills 使用标准角色名；项目可以在 `docs/agents/triage-labels.md` �
 
 流程中的 `/skill` 表示用户主动调用。Skill 内部依赖应显式调用 Skill tool，且一次只调用一个 Model-invoked Skill；User-invoked Skill 只能提示用户执行，不能由其他 Skill 代调用。
 
+`handoff` 是临时交接材料：Windows 使用 `%TEMP%`，其他系统使用 `$TMPDIR` 或 `/tmp`，需要长期保留时再复制到明确的位置。实验技能 `claude-handoff` 先写临时摘要文件，再传给后台 Claude，避免 Shell 解释摘要里的特殊字符。
+
 ## 官方来源
+
+- [固定版本 setup Skill](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/skills/engineering/setup-matt-pocock-skills/SKILL.md)
+- [GitHub tracker 模板](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/skills/engineering/setup-matt-pocock-skills/issue-tracker-github.md)
+- [贡献与维护范围](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/SCOPE.md)

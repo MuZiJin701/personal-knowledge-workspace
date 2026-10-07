@@ -1,10 +1,10 @@
 # Matt Pocock 27 个 Skills 使用说明
 
-> 2026-10-05 复核，依据 [mattpocock/skills v1.3.1](https://github.com/mattpocock/skills/releases/tag/v1.3.1)（`main` HEAD `24fe0ef`）整理。
+> 2026-10-07 复核，依据 [mattpocock/skills 固定 HEAD `6fd9479`](https://github.com/mattpocock/skills/tree/6fd947921b935b7e1e69293a200400f0fdd5c15f) 整理；最新发布版仍为 [v1.3.1](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。
 
-Skill 是给编程 Agent 使用的工作方法说明。当前上游主推清单共 27 个：`Engineering` 20 个、`Productivity` 7 个；另有 6 个 `In Progress` 和 4 个 `Misc`，因此仓库合计 37 个。这里的“27 个”仅指主推清单，不代表其余分类无法安装。
+Skill 是给编程 Agent 使用的工作方法说明。当前上游主推清单共 27 个：`Engineering` 20 个、`Productivity` 7 个；另有 7 个 `In Progress` 和 4 个 `Misc`，因此仓库合计 38 个。这里的“27 个”仅指主推清单，不代表其余分类无法安装。
 
-最新发布版本为 `v1.3.1`。此前已进入 `main` 的 `/implement-spec`、`/pr`、`/retro`，`GLOSSARY.md` / `GLOSSARY-MAP.md` 命名，以及删除 `resolving-merge-conflicts` 等变更，已归入 1.3.0 的发布记录。本轮技能内容只修正 `ask-matt` 的 Bug 复盘路由；本机 37 个技能目录中的 101 个上游文件与当前 HEAD 一致。`skills update` 只刷新已安装项，不会加入新增技能或清理上游删除项。
+最新发布版本为 `v1.3.1`；其后 `main` 修复了 `implement` 的 Skill 调用、GitHub tracker 的外部 PR 列表和父子 Issue 操作、`to-tickets` 的关系处理，以及两种 handoff 的目录或 Shell 传参问题，并新增实验技能 `chief-of-staff`。本机已安装 38 项，103 个上游文件与固定 HEAD 一致。`skills update` 只刷新已安装项，不会加入新增技能或清理上游删除项。详见[2026-10-07 更新核查](github-skills-updates-2026-10-07.md)。
 
 当前 `domain-modeling` 在讨论代码库术语、编写或编辑 `GLOSSARY.md`，以及记录或编辑 ADR 时可触发；不再使用旧的 `CONTEXT.md` 命名。
 
@@ -14,7 +14,7 @@ Skill 是给编程 Agent 使用的工作方法说明。当前上游主推清单�
 
 2026-09-30 的上游变更、本机删除已移除技能的操作以及 wx skill 的 resolver 更新见[两仓库更新核查](github-skills-updates-2026-09-30.md)。
 
-2026-10-05 的 `ask-matt` 修正、`v1.3.1` 发布和本机安装结果见[最新更新核查](github-skills-updates-2026-10-05.md)。
+2026-10-05 的 `ask-matt` 修正与 `v1.3.1` 发布见[当日更新核查](github-skills-updates-2026-10-05.md)；后续五项修复、新实验技能和维护范围变化见[2026-10-07 更新核查](github-skills-updates-2026-10-07.md)。
 
 ## 在 Codex 中安装
 
@@ -29,7 +29,7 @@ skills add mattpocock/skills --global --agent codex --skill '*'
 skills add mattpocock/skills --agent codex
 ```
 
-`--all` 显式选择全部技能和全部 Agent。单用 `add -g -y` 默认选择检测到的 Agent 和通用目录目标；日志中的“79 agents”不是成功安装数量。2026-10-05 的用户日志中，37 次失败均为 PromptScript 不支持全局安装；本机清单仍有 37 个技能，包括 Codex 和 Claude Code 入口。完整解释见[CLI 说明](skills%20CLI与常用命令.md)。上游目录若删除技能，需另外运行 `skills remove -g <skill-name> -y`。
+`--all` 显式选择全部技能和全部 Agent。单用 `add -g -y` 默认选择检测到的 Agent 和通用目录目标；日志中的“79 agents”不是成功安装数量。2026-10-07 的用户日志中，38 次失败均为 PromptScript 不支持全局安装；本机 38 项安装记录和技能文件已核对。完整解释见[CLI 说明](skills%20CLI与常用命令.md)。上游目录若删除技能，需另外运行 `skills remove -g <skill-name> -y`。
 
 安装后，在项目中运行一次：
 
@@ -38,6 +38,8 @@ skills add mattpocock/skills --agent codex
 ```
 
 它会配置 Issue tracker、triage 标签，以及 `GLOSSARY.md` 和 ADR 的位置。已有 `CLAUDE.md` 时优先编辑它；否则使用 `AGENTS.md`，两者都没有时再询问创建哪一个。
+
+安装或更新技能不会刷新项目中已生成的 `docs/agents/*.md`。本次 GitHub 模板新增父子 Issue 命令和外部 PR 的 REST 查询；已有项目需同步这些规则，或由用户重新运行 setup。工作区当前配置见 [issue-tracker.md](../../docs/agents/issue-tracker.md)。
 
 ## 调用方式
 
@@ -58,8 +60,8 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 | `/improve-codebase-architecture` | 发现并筛选代码库的架构改进机会，使用跨 Agent 的子代理探索 |
 | `/setup-matt-pocock-skills` | 配置项目的 Issue tracker、标签和领域文档 |
 | `/to-spec` | 把已有讨论整理成 spec 并发布到 Issue tracker |
-| `/to-tickets` | 把 spec 或计划拆成带阻塞关系的实施任务 |
-| `/implement` | 按 spec 或任务实现代码，并接入测试和代码审查 |
+| `/to-tickets` | 把 spec 或计划拆成带阻塞关系的任务；源为已有 Issue 时挂为其子 Issue，原生阻塞边不重复写入正文 |
+| `/implement` | 按 spec 或任务实现代码，并显式调用 `tdd` 和 `code-review` 的 Skill 工具 |
 | `/implement-spec` | 在一个集成分支上按任务图实现完整 spec，并行处理已解除阻塞的任务 |
 | `/wayfinder` | 为跨多个会话的大型工作建立决策地图 |
 | `/retro` | 回顾一次工程会话，按严重程度建议改善 Agent 环境 |
@@ -85,7 +87,7 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 | Skill | 用途 |
 |---|---|
 | `/grill-me` | 通过连续提问澄清计划或设计 |
-| `/handoff` | 生成交接文档，让其他 Agent 继续工作 |
+| `/handoff` | 生成交接文档，Windows 放 `%TEMP%`，其他系统放 `$TMPDIR` 或 `/tmp` |
 | `/teach` | 跨多个会话教授技能或概念 |
 | `/to-questionnaire` | 把无法独自回答的决策整理成问卷 |
 | `/wait-what` | 重新解释没有被理解的上一条消息 |
@@ -111,8 +113,10 @@ Bug 修复后，`/retro` 回顾怎样预防问题；若发现缺少适合测试�
 
 ## 其他仓库分类
 
-- `skills/in-progress/`：Beta 技能，可能变化或消失，不进入官方插件
-- `skills/misc/`：不常用的辅助工具，不进入官方插件
+- `skills/in-progress/`：7 个 Beta 技能，可能变化或消失，不进入官方插件。新增 `chief-of-staff`，由用户显式启动后协调长期目标、后台子代理和定期安排；`claude-handoff` 先将摘要写入临时文件，再作为提示词传给后台 Claude，避免 Shell 解释摘要中的特殊字符。
+- `skills/misc/`：4 个不常用的辅助工具，不进入官方插件；上游已明确冻结维护，问题和改进由用户维护本机副本或 fork。
 - `skills/deprecated/`：已废弃技能，目前为空
+
+上游的一等 tracker 支持为 GitHub、GitLab、本地 Markdown；其他工具由用户提供流程说明。新技能贡献、宿主专用配置和子代理递归限制等按 [SCOPE.md](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/SCOPE.md) 处理。上游的 `needs-info` 14 天关闭规则是其仓库 Actions，不会自动应用到用户项目。
 
 完整出处：仓库 [README](https://github.com/mattpocock/skills/blob/main/README.md)、[Engineering README](https://github.com/mattpocock/skills/blob/main/skills/engineering/README.md)、[Productivity README](https://github.com/mattpocock/skills/blob/main/skills/productivity/README.md)、[更新日志](https://github.com/mattpocock/skills/blob/main/CHANGELOG.md)和[调用规则](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md)。
