@@ -66,35 +66,87 @@ scoop install git --global
 - 普通安装：安装到当前用户的 Scoop 目录；
 - `--global`：安装到全局目录，供多个用户使用，通常需要管理员权限。
 
-示例中的：
+普通安装通常无需提权；只有确实需要多个用户共用时才选择全局安装。在以管理员身份打开的 PowerShell 中执行：
 
 ```powershell
-scoop install sudo
-sudo scoop install 7zip git openssh --global
+scoop install 7zip git openssh --global
 ```
 
-先安装 Scoop 的 `sudo` 工具，再用它临时提升权限执行全局安装。`sudo` 不是 Scoop 内置命令，而是一个可安装的软件包。
+不需要为了全局安装额外执行 `scoop install sudo`。
+
+### Windows 自带 sudo 与 Scoop 提权工具
+
+**已具备 Windows 自带 `sudo` 时，普通管理员提权优先使用它，无需再通过 Scoop 安装同名软件包。** `scoop install sudo` 安装的是另一套脚本，不会升级或接管系统自带的 `sudo`。
+
+| 工具 | 实现与管理方式 | 选择建议 |
+| --- | --- | --- |
+| Windows 自带 `sudo` | 微软的 `sudo.exe`，位于 `%SystemRoot%\System32\sudo.exe`，随 Windows 维护 | Windows 11 24H2 及以上提供，启用后足以满足普通管理员提权 |
+| Scoop 的 `sudo` | `psutils` 的 `sudo.ps1`，由 Scoop 管理；截至 2026-10-07，包版本为 `0.2020.01.26` | 本机已有系统版本，无需额外安装 |
+| Scoop 的 `gsudo` | 独立第三方工具，由 Scoop 管理 | 需要 PowerShell 脚本块、对象输入输出或可选提权缓存时再考虑 |
+
+本机于 2026-10-07 核查：当前解析到系统 `sudo.exe`，版本为 `1.0.1`，已启用且处于强制新建窗口模式。这是本机状态记录，不代表其他电脑的默认状态。
+
+检查命令来源、版本和当前模式：
+
+```powershell
+Get-Command sudo -All
+where.exe sudo
+sudo --version
+sudo config
+```
+
+系统 `sudo` 默认以 UAC 确认提权，可配置新窗口、关闭输入或当前窗口交互模式。未启用时可在 Windows 设置中搜索“sudo”并开启。偶尔需要管理员权限也可以直接以管理员身份打开 PowerShell，无需安装提权工具。
+
+Scoop 的入口通常是 PowerShell 脚本；用系统 `sudo` 执行它时应显式启动 PowerShell。以下示例要求系统 `sudo` 已启用，且 `Get-Command scoop` 指向 Scoop 的 `.ps1` 入口：
+
+```powershell
+sudo powershell.exe -NoProfile -File (Get-Command scoop).Source install 7zip git openssh --global
+```
+
+只有出现上述额外功能需求时，再安装 `gsudo`：
+
+```powershell
+scoop install gsudo
+gsudo { scoop install 7zip git openssh --global }
+```
+
+`gsudo` 的提权缓存需要主动启用；它允许在缓存有效期内减少 UAC 确认，也意味着缓存期间的提权不再逐次确认。Scoop 的 `gsudo` 清单还会创建名为 `sudo` 的命令入口；建议直接使用 `gsudo`，避免同名命令解析歧义。需要明确调用系统版本时，使用 `& "$env:SystemRoot\System32\sudo.exe" <命令>`。
+
+依据：[微软 Sudo for Windows 文档](https://learn.microsoft.com/en-us/windows/advanced-settings/sudo/)、[Scoop sudo 清单](https://github.com/ScoopInstaller/Main/blob/master/bucket/sudo.json)、[Scoop gsudo 清单](https://github.com/ScoopInstaller/Main/blob/master/bucket/gsudo.json)和 [gsudo 项目说明](https://github.com/gerardog/gsudo)。
 
 ### Bucket（软件源）
 
-Bucket 是存放软件 manifest 的 Git 仓库。`main` 默认启用，`extras` 提供更多桌面软件。
+Bucket 是存放软件 manifest 的 Git 仓库。`main` 默认启用，`extras` 补充不符合 `main` 收录标准的软件，包括许多桌面应用。
 
 ```powershell
 scoop bucket list
-scoop bucket add extras
-scoop bucket rm extras
+scoop bucket add extras      # 需要且尚未添加时执行
+scoop bucket rm extras       # 不再需要该源时执行
 ```
 
-常见 Bucket：
+常见 Bucket 示例（并非完整清单）；本机已添加的软件源以 `scoop bucket list` 为准，Scoop 内置的已知软件源可用 `scoop bucket known` 查看：
 
 | Bucket | 内容 |
 | --- | --- |
-| `main` | 常用命令行工具，默认启用 |
-| `extras` | 更多桌面应用 |
+| `main` | 常用命令行和开发工具，默认启用 |
+| `extras` | 不符合 `main` 收录标准的补充软件，包括许多桌面应用 |
+| `versions` | 软件的其他版本，如旧版、固定版本、测试版和 nightly 开发版 |
 | `games` | 游戏及相关工具 |
-| `nerd-fonts` | Nerd Fonts 字体 |
+| `nerd-fonts` | Nerd Fonts 及其他字体 |
 | `java` | JDK、JRE 和 Java 工具 |
 | `sysinternals` | Microsoft Sysinternals 工具 |
+
+### 按需添加软件源
+
+根据 2026-10-07 用户提供的 `scoop bucket list` 输出，本机已添加 `main`、`extras`、`versions`、`nerd-fonts` 和 `java`。这些源覆盖常用工具、桌面应用及其他版本、字体和 Java 方面的需求；当前没有明确缺少的软件或版本，建议保持现有配置，无需额外添加软件源。
+
+后续按具体需求添加：
+
+1. 先运行 `scoop search <软件名>`，在已添加的软件源中查找所需软件或版本。
+2. 找不到时，再查看目标软件的官方安装说明或相关 Bucket 清单，确认哪个源提供它，并核实仓库和下载来源。
+3. 确认后只添加对应的源；已知源使用 `scoop bucket add <源名>`，其他源需同时提供仓库地址。
+
+`scoop bucket known` 列出的是内置已知源，不是必须全部添加的清单。添加 Bucket 只增加可用安装清单，不会自动安装其中的软件；更多源会增加同步维护和同名软件选择的成本。参见 [Scoop Bucket 官方说明](https://github.com/ScoopInstaller/Scoop/wiki/Buckets)。
 
 ### Aria2
 
@@ -177,11 +229,10 @@ scoop import scoopfile.json
 
 ## 5. 常用开发环境示例
 
-下面的命令可以保存为 PowerShell 脚本，用于重复配置环境：
+下面的命令在普通 PowerShell 中执行，默认按当前用户安装，可以保存为脚本用于重复配置环境：
 
 ```powershell
-scoop install sudo
-sudo scoop install 7zip git openssh --global
+scoop install 7zip git openssh
 scoop install aria2 curl grep sed less touch
 scoop install python ruby go perl
 ```
@@ -207,3 +258,6 @@ scoop install python ruby go perl
 - [Scoop 安装器与高级安装](https://github.com/ScoopInstaller/Install)
 - [Scoop 命令参考](https://github.com/ScoopInstaller/Scoop/wiki/Commands)
 - [Scoop 文件夹布局](https://github.com/ScoopInstaller/Scoop/wiki/Scoop-Folder-Layout)
+- [Versions 软件源说明](https://github.com/ScoopInstaller/Versions)
+- [Extras 软件源说明](https://github.com/ScoopInstaller/Extras)
+- [Nerd Fonts 软件源说明](https://github.com/matthewjberger/scoop-nerd-fonts)

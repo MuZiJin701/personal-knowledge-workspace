@@ -65,6 +65,8 @@ winget export -o winget.json          # 导出软件清单
 winget import -i winget.json          # 按清单恢复
 ```
 
+`winget source list` 列出配置的软件源，`winget list` 才是已安装软件列表。默认源包括商店应用源 `msstore`、社区软件源 `winget` 和社区字体源 `winget-font`；“显式”为 `true` 的字体源需要通过 `--source winget-font` 指定才会纳入查询。完整输出、各列含义及示例见 [WinGet 教程的软件源说明](winget-guide.md#软件源列表怎么看)。
+
 安装过程中如需自动同意协议，可附加：
 
 ```powershell
@@ -106,9 +108,11 @@ Bucket 操作：
 
 ```powershell
 scoop bucket list
-scoop bucket add extras
-scoop bucket rm extras
+scoop bucket add extras      # 需要且尚未添加时执行
+scoop bucket rm extras       # 不再需要该源时执行
 ```
+
+软件源按需添加，无需把 `scoop bucket known` 中的源全部添加。本机于 2026-10-07 已配置 `main`、`extras`、`versions`、`nerd-fonts` 和 `java`，当前没有明确缺少的软件或版本，保持现有配置即可；只有 `scoop search <软件名>` 找不到所需软件或版本时，再核实并添加对应源。具体流程见 [Scoop 教程的按需添加软件源说明](Windows%20Scoop软件管理器与常用命令.md#按需添加软件源)。
 
 ## 5. 自定义 Scoop 安装路径
 
@@ -132,8 +136,11 @@ irm get.scoop.sh | iex
 
 ```powershell
 scoop install git
+# 以下全局安装命令在管理员 PowerShell 中执行
 scoop install git --global
 ```
+
+普通安装通常无需管理员权限；只有需要多个用户共用时才选择 `--global`。全局安装不要求先安装 Scoop 的 `sudo` 软件包。本机已有并启用了 Windows 自带的 `sudo`，普通提权优先使用系统版本；`scoop install sudo` 安装的是另一套 PowerShell 脚本，不会升级系统版本。需要 PowerShell 脚本块、对象输入输出或可选提权缓存时，再考虑 `gsudo`。检查命令来源及具体用法见 [Scoop 教程的提权工具说明](Windows%20Scoop软件管理器与常用命令.md#windows-自带-sudo-与-scoop-提权工具)。
 
 默认目录通常是：
 

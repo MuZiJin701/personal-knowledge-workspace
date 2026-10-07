@@ -30,7 +30,9 @@
 - 不直接删除仍在使用的缓存目录；先用对应安装端卸载。
 - `config.toml` 中只保留 Runtime、Bundled、Ponytail，以及刻意通过 CLI 安装的 `@openai-curated` 插件。
 
-## 必须保留的安全设置
+## 当前保留的权限配置
+
+2026-10-07 核验的用户级配置如下；这是当前选择的自定义组合，不是所有环境必须采用的安全默认值。
 
 ```toml
 sandbox_mode = "danger-full-access"
@@ -41,9 +43,9 @@ approvals_reviewer = "auto_review"
 sandbox = "elevated"
 ```
 
-它们分别控制总体沙箱、Windows 沙箱层、操作批准时机与批准审查方式，不能合并或按“重复”删除。
+前三项分别控制本地命令的沙箱边界、批准时机与审核者：当前没有文件与网络沙箱限制，符合条件的批准请求交给自动审核代理；已允许的命令不会逐条自动审核。`windows.sandbox` 指定 Windows 原生沙箱实现，保留它不表示当前命令仍受沙箱隔离。
 
-`[sandbox_workspace_write]` 当前仅保留 `network_access` 的注释，作为将来的显式开关说明；它不改变当前行为。
+`[sandbox_workspace_write]` 中的字段只在 `workspace-write` 模式下生效。与三个标准预设的区别及字段选择，见 [权限配置速查：当前自定义配置](codex-permissions-config.md#当前自定义配置2026-10-07-核验)。插件整理不应顺带修改这些权限选择。
 
 ## 本次整理
 
