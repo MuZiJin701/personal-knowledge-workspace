@@ -4,6 +4,12 @@
 
 `vercel-labs/skills` 是 CLI 项目本身；`vercel-labs/agent-skills` 是可安装的技能集合。Matt Pocock 的技能来源是 `mattpocock/skills`。
 
+## 与托管插件的区别
+
+Matt Pocock 上游现在优先介绍 Codex、Claude Code、Copilot 和 VS Code 的托管插件安装；Skills CLI 安装的是可编辑文件，继续手动更新。每个 Agent 选择一种路线，避免重复技能。插件只包含主推的 27 项；Skills CLI 可以安装全部 38 项。各 Agent 的命令和更新条件见[安装指南](Matt-Pocock稳定Skills使用说明.md#安装方式)。
+
+`skills update` 不更新托管插件，也不刷新从模板生成的独立脚本。仓库自有 marketplace 按插件版本更新，Claude 官方 marketplace 还受固定提交更新影响；取得最新 `main` 文件与取得最新插件发布是不同的状态。[上游安装说明](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/.agents/install-block.md)
+
 ## 安装范围
 
 CLI 有两个范围：
@@ -105,9 +111,11 @@ skills update -g -y
 
 `skills update` 只更新已登记安装的技能，不会把上游新增技能加入本机，也不会把“所有已安装技能最新”解释为“与上游技能目录完全相同”。本机最初运行更新后才发现缺少 `implement-spec`、`pr`、`retro`；随后使用 `skills add mattpocock/skills --global --agent '*' --skill implement-spec pr retro -y` 补装。要定期完整同步某个来源，使用上面的 `skills add ... --all`；仅刷新已有安装时继续使用 `skills update -g -y`。
 
-2026-10-07 的更新成功刷新了 5 个 Matt 技能；随后全量 `add` 将新增的实验技能 `chief-of-staff` 补入，使本机数量从 37 增至 38。技能仓库最新 Release 仍为 `v1.3.1`，但 Git 源安装已取得其后的 `main` 变更；本机 CLI 版本为 `1.7.1`，二者独立计数。[本次核查](github-skills-updates-2026-10-07.md)
+2026-10-07 的更新成功刷新了 5 个 Matt 技能，随后全量 `add` 补入 `chief-of-staff`，数量从 37 增至 38。[当日核查](github-skills-updates-2026-10-07.md) 2026-10-08 又刷新了 10 个已有技能。[十项修复](github-skills-updates-2026-10-08.md) 2026-10-10 仅刷新 `wizard`，数量仍为 38。最新 Release 仍为 `v1.3.1`，本机 CLI 为 `1.7.2`，二者独立计数；本机技能文件匹配发布后的 `main` 提交 `49dd158`。[最新核查](github-skills-updates-2026-10-10.md)
 
 安装范围也不包含技能曾经生成的项目文档。比如 `setup-matt-pocock-skills` 的 tracker 模板更新后，现有 `docs/agents/issue-tracker.md` 需要另行同步；更新器不会修改它。上游仓库自身的 GitHub Actions 也不会随技能安装部署到用户项目。
+
+10 月 8 日 setup 新增的“创建缺失标签”在实际运行并确认配置后执行；`skills update/add` 本身不创建 GitHub/GitLab 标签。当前 Wayfinder 的地图与决策任务只带 `wayfinder:` 标签，项目生成文档也需同步这一约定。
 
 ### 更新失败的诊断
 
@@ -121,9 +129,15 @@ skills add mattpocock/skills/skills/engineering/<skill-name> -g -s <skill-name> 
 
 `Failed to install N` 统计失败的“技能 × Agent”组合。2026-10-07 的重装日志中，38 个技能各自在 PromptScript 目标失败一次，原因均为它不支持全局安装；其他目标的成功安装仍然有效。本机 38 项安装记录的目录哈希，以及归一化换行后的 103 个上游文件，均与固定 HEAD 一致。不能据此推导全部 79 种 Agent 已安装或能加载技能，详见[本次核查](github-skills-updates-2026-10-07.md)。
 
+2026-10-08 贴出的 `add` 日志停在安全评估信息，未包含安装完成或失败汇总，不能套用前一天的失败数量。只读比对已确认本机 38 个目录的安装记录和 103 个上游文件均匹配 `f3fc563`；这不验证各 Agent 的运行时加载。
+
+2026-10-10 的 `update` 显示 `wizard` 更新成功；随后 `add` 的粘贴日志止于目标 Agent 列表，没有最终汇总。本机 38 项安装记录和 103 个上游文件均匹配 `49dd158`，不能据此推导每个 Agent 均已成功加载。
+
 CLI 会依次检查所有已配置的 Skill 来源。`Found N global update(s)` 是所有来源的全局更新总数；后面的每个 `Updating ...` 才对应一个实际更新的 Skill，因此一次命令可能同时更新多个仓库来源、稳定 Skill 和 Beta Skill。
 
 更新对象是整个 Skill 目录，不只是一份 `SKILL.md`。例如 `codebase-design` 的配套设计说明、`diagnosing-bugs` 的脚本模板和 `wizard` 的 `template.sh` 也可能随 Skill 一起更新。
+
+本轮 `wizard` 的 `SKILL.md` 未变，更新的是 `template.sh`：普通双引号 `.env` 值读取、阶段预解析、清屏回退和 shell 变量同步。之前生成的向导仍使用自己的模板副本，需另行核对，不能把技能更新成功当作旧脚本已修复。[本轮证据](github-skills-updates-2026-10-10.md)
 
 ## 最小工作流
 

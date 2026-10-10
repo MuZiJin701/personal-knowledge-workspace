@@ -1,6 +1,6 @@
 # 本机 Node.js 与 npm 环境记录
 
-> Node.js/npm 环境快照：2026-08-20；Skills CLI 状态复核：2026-10-07。
+> Node.js/npm 环境快照：2026-08-20；Skills CLI 状态复核：2026-10-10。
 
 ## 当前结论
 
@@ -91,7 +91,9 @@ npm explain -g node-domexception
 
 ## skills CLI
 
-本机 `skills --version` 在 2026-10-07 返回 `1.7.1`，与 Matt Pocock 技能仓库的发布版本 `v1.3.1` 分别计数。此次更新报告 5 项修复；随后全量 `add` 补入实验技能 `chief-of-staff`，共发现 38 项。38 次失败均来自不支持全局安装的 PromptScript；本机 38 项安装记录和 103 个上游文件均与固定 HEAD `6fd9479` 一致。这不验证每个 Agent 的运行时加载。详细证据见[更新核查](../matt-pocock-skills/github-skills-updates-2026-10-07.md)。
+本机 `skills --version` 在 2026-10-10 返回 `1.7.2`，与 Matt Pocock 技能仓库的发布版本 `v1.3.1` 分别计数。此次 `update` 仅更新 `wizard` 模板，技能总数仍为 38；38 项安装记录和 103 个上游文件均与固定 HEAD `49dd158` 一致。随后 `add` 的粘贴日志没有最终成功或失败汇总，此比对也不验证每个 Agent 的运行时加载。详细证据见[最新更新核查](../matt-pocock-skills/github-skills-updates-2026-10-10.md)；此前十项修复见[2026-10-08 记录](../matt-pocock-skills/github-skills-updates-2026-10-08.md)。
+
+Matt Pocock 上游新增了托管插件的安装说明；本机此次仍通过 Skills CLI 更新可编辑文件。托管插件的发布版本与 Git 源文件状态分别判断，旧向导脚本副本也不会随技能更新自动修复。安装路线见[使用指南](../matt-pocock-skills/Matt-Pocock稳定Skills使用说明.md#安装方式)。
 
 `skills update` 只更新已安装项目，不会加入新增技能；指定全部技能及全部 Agent 时使用 `add --all`。单用 `add -g -y` 默认选择检测到的 Agent 和通用目录目标，日志中的 `79 agents` 是已知定义总数。常用命令：
 

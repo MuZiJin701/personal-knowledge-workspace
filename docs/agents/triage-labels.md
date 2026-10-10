@@ -21,6 +21,8 @@ Matt Pocock 技能使用两个类别角色和五个状态角色；本工作区�
 
 经过分诊的 Issue 使用一个类别标签和一个状态标签。状态标签发生冲突时，先指出冲突并确认如何处理；状态迁移替换旧状态，保留类别与其他用途的标签。从已有 spec 拆出的实施任务默认进入 `ready-for-agent`。
 
-Wayfinding 另外使用 `wayfinder:map` 和 `wayfinder:<type>`（`research`、`prototype`、`grilling`、`task`）标记地图和任务类型；它们不替代上述类别和状态。
+Wayfinding 的地图和决策任务只使用 `wayfinder:map`、`wayfinder:<type>`（`research`、`prototype`、`grilling`、`task`）标签，不应用上述类别和状态标签，包括 `ready-for-agent`。从 spec 拆出的实施任务仍按 `to-tickets` 的分诊规则处理。
 
-如果未来改用其他 issue tracker，修改右侧标签映射和 `docs/agents/issue-tracker.md`。本文件记录角色映射；GitHub 仓库中标签的创建、Issue 状态变更和自动分诊流程按具体任务授权执行。
+用户启动 setup 并确定 GitHub/GitLab 标签配置后，需检查并创建 tracker 缺失的实际标签，不止写入本文件；已有标签的名称、颜色和描述保留。GitHub 操作见 [issue-tracker.md](issue-tracker.md#标签初始化)。
+
+如果未来改用其他 issue tracker，修改表格中的“GitHub 标签”列和 `docs/agents/issue-tracker.md`。本文件记录角色映射；GitHub 仓库中标签的创建、Issue 状态变更和自动分诊流程按具体任务授权执行。

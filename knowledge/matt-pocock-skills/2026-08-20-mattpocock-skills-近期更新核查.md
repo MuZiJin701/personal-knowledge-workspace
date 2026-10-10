@@ -33,4 +33,4 @@
 
 后续复核见[2026-09-30 两个 Skills 仓库更新记录](github-skills-updates-2026-09-30.md)，其中包含 Matt Pocock 上游删除 `resolving-merge-conflicts` 后的本机清理结果。
 
-2026-10-05 复核见[当日更新记录](github-skills-updates-2026-10-05.md)，包含 `v1.3.1` 发布、`ask-matt` 路由修正和 37 个技能的本机内容比对。最新五项修复、38 项技能清单和工作区规则同步见[2026-10-07 更新记录](github-skills-updates-2026-10-07.md)。
+2026-10-05 复核见[当日更新记录](github-skills-updates-2026-10-05.md)，包含 `v1.3.1` 发布、`ask-matt` 路由修正和 37 个技能的本机内容比对。后续五项修复及 38 项技能清单见[2026-10-07 更新记录](github-skills-updates-2026-10-07.md)，十项修复及项目配置同步见[2026-10-08 更新记录](github-skills-updates-2026-10-08.md)，最新向导模板与安装路线变化见[2026-10-10 更新记录](github-skills-updates-2026-10-10.md)。

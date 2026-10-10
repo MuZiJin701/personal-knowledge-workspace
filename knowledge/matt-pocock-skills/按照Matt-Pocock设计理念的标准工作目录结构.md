@@ -56,7 +56,7 @@ src/<context>/docs/adr/           # 领域专属 ADR
 - `triage-labels.md`：将技能角色映射到项目标签。
 - `domain.md`：记录术语与 ADR 的位置、读取规则。
 
-技能更新只覆盖安装目录，不会重写这些项目文件。2026-10-06 的 GitHub 模板修复需要同步父子 Issue 命令和外部 PR 的 REST 列表；保留项目原有的 tracker、标签映射和 PR 分诊开关。详见[2026-10-07 更新核查](github-skills-updates-2026-10-07.md)。
+技能更新只覆盖安装目录，不会重写这些项目文件。已有项目需同步父子 Issue、外部 PR 查询和最新 JSON 读取规则；setup 确认 GitHub/GitLab 标签配置后，还需创建 tracker 缺失的实际标签。保留项目原有的 tracker、标签映射和 PR 分诊开关。详见[2026-10-08 更新核查](github-skills-updates-2026-10-08.md)。
 
 ### `docs/adr/`
 
@@ -101,6 +101,8 @@ Issue tracker 可以是：
 
 Skills 使用标准角色名；项目可以在 `docs/agents/triage-labels.md` 中把它们映射到实际标签。官方领域术语优先使用 `Issue`，但 `wayfinder` 保留 `Decision ticket` 这一特定术语。
 
+Wayfinder 地图和决策任务只使用 `wayfinder:` 标签；先创建真实 Issue，再建立交叉引用和阻塞边，按类型标签执行研究、原型、澄清或任务。研究成果使用临时研究分支与上下文指针，不创建 PR；推送按项目授权执行。它们与 `to-tickets` 生成的实施任务采用不同标签约定。
+
 ## 工作流
 
 ```text
@@ -121,12 +123,16 @@ Skills 使用标准角色名；项目可以在 `docs/agents/triage-labels.md` �
 
 执行时补充两条安全约定：复杂 Bug 的命令、输出和捕获文件先脱敏，再写入 Issue 或研究记录；需要人操作的 `wizard` 按阶段数量显示进度，不依赖时间估算。
 
+`wizard` 默认是临时产物；需要长期重复使用时可放入 `scripts/`。复制当前模板后，将所有阶段保留在 `run_wizard` 中并保留末尾调用；运行前用 `bash -n <script>` 检查语法。技能更新不改写已有脚本副本，也不自动刷新其中的 `.env` 读取、清屏和变量同步逻辑。[2026-10-10 模板核查](github-skills-updates-2026-10-10.md)
+
+本轮反馈检查还要求：传入 ticket 引用时先获取内容并复述标题；选定测试边界前说明能检查与遗漏什么；若通过修改代码或数据制造失败测试，先比较原始副本确认修改已生效。审查先搜索所有编码规范，再前台并行执行 Standards 与 Spec 两路审查。
+
 流程中的 `/skill` 表示用户主动调用。Skill 内部依赖应显式调用 Skill tool，且一次只调用一个 Model-invoked Skill；User-invoked Skill 只能提示用户执行，不能由其他 Skill 代调用。
 
 `handoff` 是临时交接材料：Windows 使用 `%TEMP%`，其他系统使用 `$TMPDIR` 或 `/tmp`，需要长期保留时再复制到明确的位置。实验技能 `claude-handoff` 先写临时摘要文件，再传给后台 Claude，避免 Shell 解释摘要里的特殊字符。
 
 ## 官方来源
 
-- [固定版本 setup Skill](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/skills/engineering/setup-matt-pocock-skills/SKILL.md)
-- [GitHub tracker 模板](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/skills/engineering/setup-matt-pocock-skills/issue-tracker-github.md)
+- [固定版本 setup Skill](https://github.com/mattpocock/skills/blob/f3fc5632f401156837ee3872f14fe33ccf1024ea/skills/engineering/setup-matt-pocock-skills/SKILL.md)
+- [GitHub tracker 模板](https://github.com/mattpocock/skills/blob/f3fc5632f401156837ee3872f14fe33ccf1024ea/skills/engineering/setup-matt-pocock-skills/issue-tracker-github.md)
 - [贡献与维护范围](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/SCOPE.md)
