@@ -2,7 +2,7 @@
 
 这里提供主题级导航，不维护逐文件清单。新增长期主题时补充一行；主题确实需要二级导航时，再在主题内创建 `README.md`。
 
-- [Codex](knowledge/codex/)：Codex 架构、配置与目录维护、SSH 反向代理、端口约定和排障。
+- Codex：[新服务器基础环境配置](knowledge/codex/linux-server-setup.md) → [Linux 云服务器使用 Codex](knowledge/codex/Linux云服务器使用Codex指南.md)；覆盖 SSH 与代理、工具链、安装登录、CLI、桌面 App 和手机协同，使用指南内链接配置维护专题。
 - [Command Line](knowledge/command-line/)：文本搜索、Git、apt、环境变量和终端编辑器。
 - [LaTeX](knowledge/latex/)：LaTeX、TeX Live、VS Code 工作流和常用命令。
 - [Matt Pocock Skills](knowledge/matt-pocock-skills/)：Skills 的安装、分类、调用方式、上游更新核查和工作目录约定。

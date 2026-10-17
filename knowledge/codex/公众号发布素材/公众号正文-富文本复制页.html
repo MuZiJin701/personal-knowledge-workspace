@@ -30,6 +30,7 @@
     <button type="button" onclick="copyArticle()">复制排版后的正文</button>
     <span id="status">复制后回到公众号正文框按 Ctrl+V</span>
   </div>
+  <aside class="note" style="max-width:760px;margin:16px auto;box-sizing:border-box;">历史发布快照，正文与配图不再同步更新。最新操作请阅读<a href="../linux-server-setup.md">新服务器基础环境配置</a>和<a href="../Linux云服务器使用Codex指南.md">Linux 云服务器使用 Codex</a>；重新发布前需审校内容。</aside>
   <main id="article">
     <p>这篇文章解决一个实际问题：</p>
     <blockquote><strong>手机发出任务，Windows 负责连接，Linux 云服务器负责运行 Codex；当云服务器无法直接访问 OpenAI 时，再借用 Windows 上的 Clash 代理。</strong></blockquote>
@@ -37,7 +38,7 @@
     <table><thead><tr><th>设备</th><th>做什么</th></tr></thead><tbody><tr><td>手机</td><td>发任务、看进度、回复和批准操作</td></tr><tr><td>Windows 电脑</td><td>运行 Codex App，保持连接，并运行 Clash Verge Rev</td></tr><tr><td>Linux 云服务器</td><td>保存项目，运行 Codex、测试和部署</td></tr></tbody></table>
     <h2>先看整体连接</h2>
     <p>手机和云服务器并不是直接连接。手机先连接 Windows 上的 Codex App，再由 Codex App 连接云服务器。</p>
-    <p>在本文场景中，国内云服务器无法直接访问 OpenAI，所以云端 Codex 的网络请求还要经过 Windows：</p>
+    <p>在本文所排查的环境中，服务器部分目标连接失败，因此为需要的请求使用 Windows 代理；这不代表国内服务器无法访问所有境外服务：</p>
     <pre>手机
   ↓ 操作
 Windows Codex App
@@ -60,7 +61,7 @@ Windows Clash Verge Rev
 Windows 127.0.0.1:7897
     ↓
 Clash Verge Rev → 网络代理节点 → OpenAI</pre>
-    <p>因此，<strong>带 RemoteForward 的 SSH = 普通 SSH 登录 + 一条反向转发通道</strong>。它不是新的代理软件，也不是 VPN；只有明确使用云端 <code>127.0.0.1:7897</code> 的 Codex 及其子进程会走这条路径。</p>
+    <p>因此，<strong>带 RemoteForward 的 SSH = 普通 SSH 登录 + 一条反向转发通道</strong>。它不是新的代理软件，也不是 VPN；只有明确使用云端 <code>127.0.0.1:7897</code> 的程序及其子进程才可能走这条路径；它不接管服务器全部流量，Clash 规则也可能选择直连。</p>
     <p>本文统一使用代理端口 <strong>7897</strong>。云端和 Windows 各有一个 <code>7897</code>，属于不同主机，不会冲突；但同一时间只能有一条连接占用云端 <code>7897</code>。</p>
     <h2>一、准备 SSH 私钥和公钥</h2>
     <p>SSH 密钥是一对文件：</p>
@@ -69,17 +70,19 @@ Clash Verge Rev → 网络代理节点 → OpenAI</pre>
     <h3>1. 生成或检查密钥</h3>
     <p>在 PowerShell 检查：</p><pre><code>Get-ChildItem "$env:USERPROFILE\.ssh\id_ed25519*"</code></pre>
     <p>如果没有密钥，生成它们：</p><pre><code>ssh-keygen -t ed25519 -C "codex-windows"</code></pre>
-    <p>保存路径直接按回车使用默认值，并设置私钥口令。私钥口令不要写进配置文件或文章。</p>
+    <p>默认路径可按回车确认，并设置私钥口令。已有任一密钥文件时先核查，不覆盖已有私钥；私钥口令不要写进配置文件或文章。</p>
     <h3>2. 安装公钥</h3>
-    <p>先用密码、云厂商控制台或现有密钥登录服务器。在 Windows 复制公钥：</p><pre><code>Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub" | Set-Clipboard</code></pre>
+    <p>云平台已导入公钥并绑定生效时，无需重复手工安装，也不会下载新私钥；仍使用本机原私钥。火山引擎已有实例绑定后需重启，密码登录可能失效，应按官方说明确认。手工安装则先用现有方式登录服务器，在 Windows 复制公钥：</p><pre><code>Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub" | Set-Clipboard</code></pre>
     <p>在 Linux 执行：</p><pre><code>mkdir -p ~/.ssh
 chmod 700 ~/.ssh
 nano ~/.ssh/authorized_keys</code></pre>
-    <p>把公钥完整粘贴为一行，保存后执行：</p><pre><code>chmod 600 ~/.ssh/authorized_keys</code></pre>
+    <p>把公钥完整追加为一行，保留已有公钥并确认文件所有权，保存后执行：</p><pre><code>chmod 600 ~/.ssh/authorized_keys</code></pre>
     <p>公钥必须放在实际登录用户自己的目录中。例如登录用户是 <code>dev</code>，应放在 <code>/home/dev/.ssh/authorized_keys</code>，不是 <code>/root/.ssh/authorized_keys</code>。</p>
-    <h3>3. 验证密钥登录</h3>
-    <pre><code>ssh -i "$env:USERPROFILE\.ssh\id_ed25519" -o IdentitiesOnly=yes &lt;你的Linux用户名&gt;@&lt;你的服务器IP&gt;</code></pre>
-    <p>只要求输入私钥口令，通常就表示公钥认证成功。若仍要求 Linux 密码，检查公钥是否完整、用户是否正确，以及权限是否为 <code>700</code> / <code>600</code>。</p>
+    <h3>3. 验证密钥登录</h3><p>将下列变量替换为实际值后执行：</p>
+    <pre><code>$serverUser = '你的Linux用户名'
+$serverAddress = '你的服务器IP'
+ssh -i "$env:USERPROFILE\.ssh\id_ed25519" -o IdentitiesOnly=yes "$serverUser@$serverAddress"</code></pre>
+    <p>输入私钥口令仅说明本机正在解锁私钥，成功进入服务器后才能确认登录通过。首次连接应核对服务器主机指纹。若仍要求 Linux 密码，检查公钥完整性、目标用户、文件所有权和 <code>700</code> / <code>600</code> 权限，以及服务端登录策略。</p>
     <h2>二、配置 Windows SSH</h2>
     <p>编辑：</p><pre><code>C:\Users\&lt;你的Windows用户名&gt;\.ssh\config</code></pre>
     <p>写入以下内容，并替换服务器 IP、Linux 用户名和 Windows 用户名：</p>
@@ -106,24 +109,40 @@ Host aliyun_wlcb_proxy
     <table><thead><tr><th>命令</th><th>用途</th></tr></thead><tbody><tr><td><code>ssh aliyun_wlcb</code></td><td>普通登录，不建立反向转发</td></tr><tr><td><code>ssh aliyun_wlcb_proxy</code></td><td>登录并建立云端 7897 到 Windows 7897 的反向转发</td></tr></tbody></table>
     <p class="note">私钥始终留在 Windows；不要上传到手机、服务器或文章中。私钥泄露后，应立即删除服务器上的对应公钥并重新生成密钥。</p>
     <h2>三、验证代理链路</h2>
-    <h3>1. 验证 Windows Clash</h3><p>启动 Clash Verge Rev，在 PowerShell 执行：</p><pre><code>curl.exe -x http://127.0.0.1:7897 https://api.ipify.org</code></pre><p>能返回公网 IP，说明本机代理可用。</p>
+    <h3>1. 验证 Windows Clash</h3><p>启动 Clash Verge Rev，在 PowerShell 执行：</p><pre><code>curl.exe -x http://127.0.0.1:7897 https://api.ipify.org</code></pre><p>能返回公网 IP，只说明本次请求可通过代理访问该站点；还需验证实际目标和完整下载，HTTP 200 响应头不等于所有服务可用。</p>
     <h3>2. 建立带转发的 SSH</h3><pre><code>ssh aliyun_wlcb_proxy</code></pre><p>测试时保持该连接在线。实际使用 Codex App 时，由 App 管理这条连接，不要再手动启动第二条相同的转发。</p>
     <h3>3. 在 Linux 验证云端入口</h3><p>另开一个 PowerShell，普通登录服务器：</p><pre><code>ssh aliyun_wlcb</code></pre><p>在 Linux 执行：</p><pre><code>ss -lnt | grep 7897
 curl -x http://127.0.0.1:7897 https://api.ipify.org</code></pre><p>能返回代理节点的公网 IP，说明 <code>RemoteForward</code> 成功。</p>
-    <h2>四、配置并启动云端 Codex</h2><p>在 Linux 创建 Codex 环境文件：</p><pre><code>mkdir -p ~/.codex
-nano ~/.codex/.env</code></pre><p>写入：</p><pre><code>HTTP_PROXY=http://127.0.0.1:7897
+    <h2>四、安装、登录并启动云端 Codex</h2>
+<p>首次部署需要可用的 Node.js 和 npm。以下命令在 Linux 当前终端执行，保持反向转发 SSH 与 Clash 在线：</p>
+<pre><code>export http_proxy="http://127.0.0.1:7897"
+export https_proxy="http://127.0.0.1:7897"
+export no_proxy="localhost,127.0.0.1,::1"
+
+npm install -g @openai/codex@latest
+codex --version</code></pre>
+<p>https_proxy 中的 http:// 表示连接 HTTP 代理的协议，目标 HTTPS 仍验证证书。上面的 export 用于安装前或临时下载；安装 Codex 后，创建它在启动时自动读取的代理文件：</p>
+<pre><code>mkdir -p ~/.codex
+micro ~/.codex/.env</code></pre>
+<p>保留已有其他配置，添加或更新：</p><pre><code>HTTP_PROXY=http://127.0.0.1:7897
 HTTPS_PROXY=http://127.0.0.1:7897
 ALL_PROXY=http://127.0.0.1:7897
 http_proxy=http://127.0.0.1:7897
 https_proxy=http://127.0.0.1:7897
 all_proxy=http://127.0.0.1:7897
-NO_PROXY=127.0.0.1,localhost
-no_proxy=127.0.0.1,localhost</code></pre><p>保存并限制权限：</p><pre><code>chmod 600 ~/.codex/.env</code></pre><p>使用设备码登录：</p><pre><code>codex login --device-auth
-codex login status</code></pre><p>登录成功后，在项目目录启动：</p><pre><code>cd /path/to/your/project
+NO_PROXY=localhost,127.0.0.1,::1
+no_proxy=localhost,127.0.0.1,::1</code></pre>
+<p>保存并限制权限：</p><pre><code>chmod 600 ~/.codex/.env</code></pre>
+<p>以后 Codex 启动时读取 .env，无需每次 export，但仍需 SSH 隧道和 Clash 在线。其他独立下载工具不会自动读取它。App 和 CLI 应核对实际用户与 CODEX_HOME；修改后重新启动对应 Codex 进程。</p>
+<p>使用设备码登录：</p><pre><code>codex login --device-auth</code></pre>
+<p>在本机浏览器打开 CLI 提供的网址，输入本次验证码并完成授权；不要分享验证码。账户或工作区需允许设备码登录。授权完成后检查：</p><pre><code>codex login status</code></pre>
+<p>登录缓存存在不等于服务调用正常。在实际项目目录运行 Codex，发送“只回复 OK”，收到回复再确认调用通过：</p><pre><code>cd /path/to/your/project
 codex</code></pre>
-    <h2>五、手机端使用</h2><p>每次使用前：</p><ol><li>Windows 保持开机、联网且不睡眠；</li><li>启动 Clash Verge Rev；</li><li>启动 Windows Codex App，让它使用 <code>aliyun_wlcb_proxy</code>；</li><li>确认 Linux 上的 Codex 已启动；</li><li>手机连接 Codex App，发送任务并查看进度。</li></ol><p>手机不保存服务器私钥，也不直接建立 SSH。代码读写、命令执行、测试和部署都发生在 Linux 云服务器上。</p>
+<p>设备码不可用时，可用 SSH 转发普通浏览器登录的本地回调；参见 <a href="https://learn.chatgpt.com/docs/auth#login-on-headless-devices">OpenAI 官方登录说明</a>。服务器自身仍需能访问登录与模型服务。</p>
+<h2>五、手机端使用</h2><p>每次使用前：</p><ol><li>Windows 保持开机、联网且不睡眠；</li><li>启动 Clash Verge Rev；</li><li>启动 Windows Codex App，让它使用 <code>aliyun_wlcb_proxy</code>；</li><li>由 App 建立可用的 Linux 远端会话并验证代理，无需额外保留手工 CLI 会话；</li><li>手机连接 Codex App，发送任务并查看进度。</li></ol><p>手机不保存服务器私钥，也不直接建立 SSH。代码读写、命令执行、测试和部署都发生在 Linux 云服务器上。</p>
     <h2>常见问题</h2><h3><code>remote port forwarding failed for listen port 7897</code></h3><p>云端 <code>7897</code> 已被另一条反向转发占用。关闭重复的 <code>aliyun_wlcb_proxy</code>，其他终端使用 <code>aliyun_wlcb</code>。</p><h3>云端没有监听 <code>7897</code></h3><p>检查 Clash、Codex App 和带转发的 SSH 是否在线。也可以临时手动建立转发：</p><pre><code>ssh -NT -R 127.0.0.1:7897:127.0.0.1:7897 aliyun_wlcb</code></pre><p>手动命令与 Codex App 的 <code>aliyun_wlcb_proxy</code> 二选一，不能同时运行。</p><h3>手机无法连接 Codex App</h3><p>检查 Windows 是否睡眠、Codex App 是否运行、本地网络是否正常。Windows App 或 SSH 断开后，手机远程控制和云端代理都会受到影响。</p>
-    <h2>最后记住</h2><pre>aliyun_wlcb        普通 SSH
+    <p>2026-10-17 同步修订。尚未验证本次 Codex 完整授权、模型请求和手机到 App 的整条远程操作链路。SSH 认证细节参见 <a href="https://www.rfc-editor.org/rfc/rfc4252.html#section-7">SSH 公钥认证协议</a>，云平台绑定参见 <a href="https://docs.volcengine.com/docs/ecs/Binding-key-pairs-to-instances?lang=zh">火山引擎说明</a>。</p>
+<h2>最后记住</h2><pre>aliyun_wlcb        普通 SSH
 aliyun_wlcb_proxy  SSH + RemoteForward
 7897               云端代理入口 ↔ Windows Clash 入口</pre>
   </main>
