@@ -1,6 +1,14 @@
 # 本机 Node.js 与 npm 环境记录
 
-> Node.js/npm 环境快照：2026-08-20；Skills CLI 状态复核：2026-10-10。
+> Node.js/npm 环境快照：2026-08-20；Skills CLI 状态复核：2026-10-27。
+
+## 2026-10-18：Playwright CLI 与全局 skill
+
+已核实全局 `@playwright/cli@0.1.22` 可通过 `playwright-cli` 直接调用，当前 npm prefix 为 `D:\software\scoop\persist\nodejs-lts\bin`。微软 `playwright-cli` skill 已安装到 `%USERPROFILE%\.agents\skills\playwright-cli\`，Skills CLI 锁文件记录来源为 `microsoft/playwright-cli`。
+
+全局 CLI 提供运行工具，skill 提供 Agent 使用流程；二者分别更新。安装状态不代表已验证浏览器连接或每个 Agent 的加载。完整的[全局安装、来源和使用方法](../codex/chrome-plugin-and-playwright.md#本机全局-cli-与技能)包含现有 Chrome 连接及验证限制。
+
+以下 Node.js、fnm 和旧全局工具清单保留为 2026-08-20 历史快照，不是此次重新盘点的当前版本；上方 Skills CLI 复核日期只对应文末技能记录。
 
 ## 当前结论
 
@@ -91,9 +99,9 @@ npm explain -g node-domexception
 
 ## skills CLI
 
-本机 `skills --version` 在 2026-10-10 返回 `1.7.2`，与 Matt Pocock 技能仓库的发布版本 `v1.3.1` 分别计数。此次 `update` 仅更新 `wizard` 模板，技能总数仍为 38；38 项安装记录和 103 个上游文件均与固定 HEAD `49dd158` 一致。随后 `add` 的粘贴日志没有最终成功或失败汇总，此比对也不验证每个 Agent 的运行时加载。详细证据见[最新更新核查](../matt-pocock-skills/github-skills-updates-2026-10-10.md)；此前十项修复见[2026-10-08 记录](../matt-pocock-skills/github-skills-updates-2026-10-08.md)。
+本机 `skills --version` 在 2026-10-27 返回 `1.7.4`，与 Matt Pocock 技能仓库的发布版本 `v1.3.1` 分别计数。相较 10 月 21 日，上游只修改 setup 技能包及贡献文档，技能总数仍为 38；38 项目录记录和 103 个上游技能包文件均与固定 HEAD `59db609` 一致。本轮没有 CLI 更新日志，不能还原命令显示的更新数量或各 Agent 的安装结果，也未验证运行时加载。详细证据见[最新更新核查](../matt-pocock-skills/github-skills-updates-2026-10-27.md)；此前实验技能 Wiki 规则见[2026-10-21 记录](../matt-pocock-skills/github-skills-updates-2026-10-21.md)。
 
-Matt Pocock 上游新增了托管插件的安装说明；本机此次仍通过 Skills CLI 更新可编辑文件。托管插件的发布版本与 Git 源文件状态分别判断，旧向导脚本副本也不会随技能更新自动修复。安装路线见[使用指南](../matt-pocock-skills/Matt-Pocock稳定Skills使用说明.md#安装方式)。
+托管插件的发布版本与 Git 源文件状态分别判断。setup 在 27 项主推插件技能中，但插件版本未变，不能据此认定插件安装已取得本轮 `main` 修复；旧向导脚本副本和已生成的项目配置也不会随 Skills CLI 更新自动刷新。本工作区已另行同步 GitHub tracker 文档。安装路线见[使用指南](../matt-pocock-skills/Matt-Pocock稳定Skills使用说明.md#安装方式)。
 
 `skills update` 只更新已安装项目，不会加入新增技能；指定全部技能及全部 Agent 时使用 `add --all`。单用 `add -g -y` 默认选择检测到的 Agent 和通用目录目标，日志中的 `79 agents` 是已知定义总数。常用命令：
 
@@ -119,5 +127,6 @@ skill 来源和版本记录在：
 - [MuZiJin701/zen-computer-marketplace](https://github.com/MuZiJin701/zen-computer-marketplace)
 - [vercel-labs/skills](https://github.com/vercel-labs/skills)
 - [MuZiJin701/wx-video-account-notes](https://github.com/MuZiJin701/wx-video-account-notes)
+- [microsoft/playwright-cli](https://github.com/microsoft/playwright-cli)（2026-10-18 新增全局 `playwright-cli` skill）
 
 旧的 `unify-windows-theme` 记录已从锁文件清理。

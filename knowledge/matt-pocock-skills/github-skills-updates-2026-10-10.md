@@ -2,6 +2,8 @@
 
 检查日期：2026-10-10（Asia/Shanghai）。接续 [2026-10-08 核查](github-skills-updates-2026-10-08.md)，依据用户提供的 CLI 日志和上游 GitHub API、固定源码。
 
+本文保留当日快照；后续实验技能的 Wiki 规则及本机比对见 [2026-10-21 更新核查](github-skills-updates-2026-10-21.md)。
+
 ## 基准与结论
 
 比较范围固定为 [`f3fc563...49dd158`](https://github.com/mattpocock/skills/compare/f3fc5632f401156837ee3872f14fe33ccf1024ea...49dd158d1076134a641b33efb035946536778336)：3 个提交、7 个文件，新增 160 行、删除 49 行。HEAD `49dd158d1076134a641b33efb035946536778336` 的提交时间为北京时间 2026-10-09 18:56:49。

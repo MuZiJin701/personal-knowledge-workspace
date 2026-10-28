@@ -69,6 +69,18 @@ skills add ./my-local-skills
 
 默认推荐符号链接；不支持符号链接时再使用 `--copy`。
 
+### 本机示例：Playwright 全局 skill
+
+2026-10-18 已核实 `playwright-cli` 为全局 skill，来源是 `microsoft/playwright-cli`，实际目录为 `%USERPROFILE%\.agents\skills\playwright-cli\`，不属于 Matt Pocock 的技能集合。复现与检查命令：
+
+```powershell
+skills add microsoft/playwright-cli --skill playwright-cli --global
+skills list -g --json | ConvertFrom-Json | Where-Object name -eq 'playwright-cli'
+skills update -g playwright-cli
+```
+
+Skill 提供浏览器操作说明；运行工具由 npm 全局包 `@playwright/cli` 提供，本机 CLI 版本为 `0.1.22`。`skills update` 不会更新这个 npm 包。Codex 原有的 `playwright` 是 OpenAI 改编版，与新装微软 `playwright-cli` 名称不同、功能相近；无需重复安装。具体来源、运行命令及浏览器连接限制见 [Playwright 全局使用](../codex/chrome-plugin-and-playwright.md#本机全局-cli-与技能)。
+
 ## 常用命令
 
 | 命令 | 用途 | 示例 |
@@ -111,9 +123,11 @@ skills update -g -y
 
 `skills update` 只更新已登记安装的技能，不会把上游新增技能加入本机，也不会把“所有已安装技能最新”解释为“与上游技能目录完全相同”。本机最初运行更新后才发现缺少 `implement-spec`、`pr`、`retro`；随后使用 `skills add mattpocock/skills --global --agent '*' --skill implement-spec pr retro -y` 补装。要定期完整同步某个来源，使用上面的 `skills add ... --all`；仅刷新已有安装时继续使用 `skills update -g -y`。
 
-2026-10-07 的更新成功刷新了 5 个 Matt 技能，随后全量 `add` 补入 `chief-of-staff`，数量从 37 增至 38。[当日核查](github-skills-updates-2026-10-07.md) 2026-10-08 又刷新了 10 个已有技能。[十项修复](github-skills-updates-2026-10-08.md) 2026-10-10 仅刷新 `wizard`，数量仍为 38。最新 Release 仍为 `v1.3.1`，本机 CLI 为 `1.7.2`，二者独立计数；本机技能文件匹配发布后的 `main` 提交 `49dd158`。[最新核查](github-skills-updates-2026-10-10.md)
+2026-10-07 的更新成功刷新了 5 个 Matt 技能，随后全量 `add` 补入 `chief-of-staff`，数量从 37 增至 38。[当日核查](github-skills-updates-2026-10-07.md) 后续十项修复、向导模板和实验技能 Wiki 规则分别见 [10 月 8 日](github-skills-updates-2026-10-08.md)、[10 月 10 日](github-skills-updates-2026-10-10.md)和 [10 月 21 日](github-skills-updates-2026-10-21.md)核查。2026-10-27 的上游变化仅涉及 setup 技能包及贡献文档，数量仍为 38。本机 CLI 为 `1.7.4`，技能最新 Release 仍为 `v1.3.1`，二者独立计数；本机技能文件匹配发布后的 `main` 提交 `59db609`。[最新核查](github-skills-updates-2026-10-27.md)
 
 安装范围也不包含技能曾经生成的项目文档。比如 `setup-matt-pocock-skills` 的 tracker 模板更新后，现有 `docs/agents/issue-tracker.md` 需要另行同步；更新器不会修改它。上游仓库自身的 GitHub Actions 也不会随技能安装部署到用户项目。
+
+本轮 setup 更新包括 tracker 可访问性、旧 `CONTEXT` 文件迁移提示，以及 GitHub/GitLab 模板修复。本工作区已另行同步目标仓库核验、评论后关闭、PR 正文读取和开放阻塞查询；`skills update` 本身不修改 remote、不迁移项目领域文件。只有用户显式启动 setup 后，才按其流程配置项目。[项目 tracker](../../docs/agents/issue-tracker.md)
 
 10 月 8 日 setup 新增的“创建缺失标签”在实际运行并确认配置后执行；`skills update/add` 本身不创建 GitHub/GitLab 标签。当前 Wayfinder 的地图与决策任务只带 `wayfinder:` 标签，项目生成文档也需同步这一约定。
 
@@ -133,11 +147,17 @@ skills add mattpocock/skills/skills/engineering/<skill-name> -g -s <skill-name> 
 
 2026-10-10 的 `update` 显示 `wizard` 更新成功；随后 `add` 的粘贴日志止于目标 Agent 列表，没有最终汇总。本机 38 项安装记录和 103 个上游文件均匹配 `49dd158`，不能据此推导每个 Agent 均已成功加载。
 
+2026-10-21 未提供 CLI 更新日志；只读比对确认本机 38 项目录记录和 103 个技能包文件均匹配 `5beb35b`，无法据此还原命令显示的更新数量或各 Agent 的安装、加载结果。变化来自全量安装包含的实验技能 `chief-of-staff`，27 项主推插件技能未变。
+
+2026-10-27 同样没有 CLI 更新日志；本机 38 项目录记录和 103 个技能包文件均匹配 `59db609`，只有 setup 技能包的上游内容变化。文件一致不等于各 Agent 都成功安装或加载，不能反推命令显示的更新数量。
+
 CLI 会依次检查所有已配置的 Skill 来源。`Found N global update(s)` 是所有来源的全局更新总数；后面的每个 `Updating ...` 才对应一个实际更新的 Skill，因此一次命令可能同时更新多个仓库来源、稳定 Skill 和 Beta Skill。
 
 更新对象是整个 Skill 目录，不只是一份 `SKILL.md`。例如 `codebase-design` 的配套设计说明、`diagnosing-bugs` 的脚本模板和 `wizard` 的 `template.sh` 也可能随 Skill 一起更新。
 
-本轮 `wizard` 的 `SKILL.md` 未变，更新的是 `template.sh`：普通双引号 `.env` 值读取、阶段预解析、清屏回退和 shell 变量同步。之前生成的向导仍使用自己的模板副本，需另行核对，不能把技能更新成功当作旧脚本已修复。[本轮证据](github-skills-updates-2026-10-10.md)
+10 月 10 日核查时，`wizard` 的 `SKILL.md` 未变，更新的是 `template.sh`：普通双引号 `.env` 值读取、阶段预解析、清屏回退和 shell 变量同步。之前生成的向导仍使用自己的模板副本，需另行核对，不能把技能更新成功当作旧脚本已修复。[当日证据](github-skills-updates-2026-10-10.md)
+
+10 月 21 日的 `chief-of-staff` 更新的是技能说明。安装或更新不会启动该技能，也不会创建 Wiki 或定期检查任务；用户显式启动后，才按其规则约定 Wiki 位置并维护记忆。[长期记忆用法](Matt-Pocock稳定Skills使用说明.md#chief-of-staff-的长期记忆)
 
 ## 最小工作流
 

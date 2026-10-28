@@ -1,10 +1,10 @@
 # Matt Pocock 27 个 Skills 使用说明
 
-> 2026-10-10 复核，依据 [mattpocock/skills 固定 HEAD `49dd158`](https://github.com/mattpocock/skills/tree/49dd158d1076134a641b33efb035946536778336) 整理；最新发布版仍为 [v1.3.1](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。
+> 2026-10-27 复核，依据 [mattpocock/skills 固定 HEAD `59db609`](https://github.com/mattpocock/skills/tree/59db609eb1e18aaf59b63284d0e52255aff0c63c) 整理；最新发布版仍为 [v1.3.1](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。
 
 Skill 是给编程 Agent 使用的工作方法说明。当前上游主推清单共 27 个：`Engineering` 20 个、`Productivity` 7 个；另有 7 个 `In Progress` 和 4 个 `Misc`，因此仓库合计 38 个。这里的“27 个”仅指主推清单，不代表其余分类无法安装。
 
-最新发布版本为 `v1.3.1`；其后 `main` 的本轮更新修复 `wizard` 模板，并改写多 Agent 的安装说明。本机仍安装 38 项，103 个上游文件与固定 HEAD 一致，Skills CLI 为 `1.7.2`。`skills update` 只刷新已安装项，不会加入新增技能或清理上游删除项。详见[2026-10-10 更新核查](github-skills-updates-2026-10-10.md)。
+最新发布版本为 `v1.3.1`；本轮 `main` 更新 `setup-matt-pocock-skills` 及其 GitHub/GitLab 模板，并细化上游贡献规则，其余 37 项技能内容未变。本机仍安装 38 项，103 个上游文件与固定 HEAD 一致，Skills CLI 为 `1.7.4`。`skills update` 只刷新已安装项，不会加入新增技能或清理上游删除项。详见[2026-10-27 更新核查](github-skills-updates-2026-10-27.md)。
 
 当前 `domain-modeling` 在讨论代码库术语、编写或编辑 `GLOSSARY.md`，以及记录或编辑 ADR 时可触发；不再使用旧的 `CONTEXT.md` 命名。
 
@@ -17,6 +17,8 @@ Skill 是给编程 Agent 使用的工作方法说明。当前上游主推清单�
 2026-10-05 的 `ask-matt` 修正与 `v1.3.1` 发布见[当日更新核查](github-skills-updates-2026-10-05.md)；后续五项修复、新实验技能和维护范围变化见[2026-10-07 更新核查](github-skills-updates-2026-10-07.md)。
 
 2026-10-08 的十项修复及其对项目配置的影响见[当日更新核查](github-skills-updates-2026-10-08.md)；后续向导模板和安装路线变化见[2026-10-10 更新核查](github-skills-updates-2026-10-10.md)。
+
+2026-10-21 的实验技能 Wiki 规则及本机内容比对见[当日更新核查](github-skills-updates-2026-10-21.md)；后续 setup、tracker 和贡献流程变化见[2026-10-27 更新核查](github-skills-updates-2026-10-27.md)。
 
 ## 安装方式
 
@@ -31,9 +33,9 @@ codex plugin marketplace add mattpocock/skills
 codex plugin add mattpocock-skills@mattpocock
 ```
 
-上游将该路线描述为启动时自动更新，但仓库自有 marketplace 按 `plugin.json` 的版本变化更新，不能认为每个 `main` 修复都已分发。当前插件仍为 `1.3.1`，不据此认定已包含本次 `wizard` 修复。[固定安装说明](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/.agents/install-block.md)
+上游将该路线描述为启动时自动更新，但仓库自有 marketplace 按 `plugin.json` 的版本变化更新，不能认为每个 `main` 修复都已分发。当前插件仍为 `1.3.1`，不据此认定已包含 10 月 10 日核查的 `wizard` 修复；插件清单也不包含 `chief-of-staff`。[固定安装说明](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/.agents/install-block.md)
 
-本机 `codex plugin marketplace add --help` 和 `codex plugin add --help` 已确认上述参数形式；[OpenAI 官方插件文档](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli)也说明了 marketplace 添加方式。本次未实际安装插件或验证自动更新。
+10 月 10 日复核时，本机 `codex plugin marketplace add --help` 和 `codex plugin add --help` 已确认上述参数形式；[OpenAI 官方插件文档](https://developers.openai.com/plugins/build/plugins#add-a-marketplace-from-the-cli)也说明了 marketplace 添加方式。本轮未实际安装插件或验证自动更新。
 
 ### Skills CLI：可编辑文件与手动更新
 
@@ -72,7 +74,9 @@ skills add mattpocock/skills --agent codex
 
 它会配置 Issue tracker、triage 标签，以及 `GLOSSARY.md` 和 ADR 的位置；在 GitHub/GitLab 标签配置确认后，还会创建 tracker 缺失的实际标签。已有 `CLAUDE.md` 时优先编辑它；否则使用 `AGENTS.md`，两者都没有时再询问创建哪一个。
 
-安装或更新技能不会刷新项目中已生成的 `docs/agents/*.md`。10 月 8 日的 GitHub JSON 读取和缺失标签创建规则已同步到工作区；本轮模板和安装说明变化不影响 tracker、标签或领域配置。工作区当前配置见 [issue-tracker.md](../../docs/agents/issue-tracker.md)。
+选择 GitHub/GitLab tracker 时，先确保存在对应主机的 remote，并用 `gh repo view` / `glab repo view` 验证项目可访问；缺少远端时先取得用户指定的仓库 URL，无法读取项目则停止继续配置。发现旧 `CONTEXT.md` / `CONTEXT-MAP.md` 时，setup 会提出迁移为 `GLOSSARY.md` / `GLOSSARY-MAP.md` 并更新 `docs/agents/domain.md`。这次新增的是迁移提示，领域文件改名已在 1.3.0 发生。
+
+安装或更新技能不会刷新项目中已生成的 `docs/agents/*.md`。本轮已手工同步工作区的[GitHub tracker 规则](../../docs/agents/issue-tracker.md)：首次创建 Issue 前核对目标仓库，先评论再关闭，分别读取 PR 正文和评论，并查询开放阻塞数。GitLab 模板还修正 MR 的 `-O json`、地图子任务关联和 frontier 查询，使用 GitLab 的项目需同步对应规则。[完整核查](github-skills-updates-2026-10-27.md)
 
 ## 调用方式
 
@@ -91,7 +95,7 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 | `/grill-with-docs` | 澄清需求，同时维护术语和架构决策 |
 | `/triage` | 按状态机处理 Issue 和外部 PR |
 | `/improve-codebase-architecture` | 发现并筛选代码库的架构改进机会，使用跨 Agent 的子代理探索 |
-| `/setup-matt-pocock-skills` | 配置 tracker、标签和领域文档，并创建 GitHub/GitLab 缺失的已配置标签 |
+| `/setup-matt-pocock-skills` | 验证托管仓库可访问性，提示迁移旧领域文件，配置 tracker、标签和领域文档，并创建缺失的已配置标签 |
 | `/to-spec` | 把已有讨论整理成 spec 并发布到 Issue tracker |
 | `/to-tickets` | 把 spec 或计划拆成带阻塞关系的任务；源为已有 Issue 时挂为其子 Issue，原生阻塞边不重复写入正文 |
 | `/implement` | 先获取 ticket 并复述标题，再实现代码；显式调用 `tdd` 和 `code-review` |
@@ -113,7 +117,7 @@ Skill 间的依赖必须显式调用 Skill tool，且一次只调用一个 Skill
 | `pr` | 为 pull request 撰写说明，包含变更摘要、前后证据和合并风险判断 |
 | `wizard` | 生成人工操作的 Bash 向导；模板支持 `.env` 安全读写、阶段预解析、清屏回退及 shell 变量同步 |
 
-编写向导时复制当前 `template.sh`，将阶段保留在 `run_wizard` 中，并保留末尾调用。普通双引号 `.env` 值可去除外层引号后保留；内部含反斜杠、`$` 或双引号时重新输入。`write_env` 同步当前 shell 变量，但不会自动 `export`。已生成的脚本是独立副本，不随技能更新自动修复；Windows Git Bash 的浏览器打开问题仍未在本轮处理。[模板修复与边界](github-skills-updates-2026-10-10.md)
+编写向导时复制当前 `template.sh`，将阶段保留在 `run_wizard` 中，并保留末尾调用。普通双引号 `.env` 值可去除外层引号后保留；内部含反斜杠、`$` 或双引号时重新输入。`write_env` 同步当前 shell 变量，但不会自动 `export`。已生成的脚本是独立副本，不随技能更新自动修复；Windows Git Bash 的浏览器打开问题未在 10 月 10 日的修复中处理，本轮也未修改 `wizard`。[模板修复与边界](github-skills-updates-2026-10-10.md)
 
 ## Productivity：7 个
 
@@ -148,10 +152,26 @@ Bug 修复后，`/retro` 回顾怎样预防问题；若发现缺少适合测试�
 
 ## 其他仓库分类
 
-- `skills/in-progress/`：7 个 Beta 技能，可能变化或消失，不进入官方插件。新增 `chief-of-staff`，由用户显式启动后协调长期目标、后台子代理和定期安排；`claude-handoff` 先将摘要写入临时文件，再作为提示词传给后台 Claude，避免 Shell 解释摘要中的特殊字符。
+- `skills/in-progress/`：7 个 Beta 技能，可能变化或消失，不进入官方插件。`chief-of-staff` 由用户显式启动后协调长期目标和后台子代理，维护持久 Wiki，并按宿主能力建议定期安排；`claude-handoff` 先将摘要写入临时文件，再作为提示词传给后台 Claude，避免 Shell 解释摘要中的特殊字符。
 - `skills/misc/`：4 个不常用的辅助工具，不进入官方插件；上游已明确冻结维护，问题和改进由用户维护本机副本或 fork。
 - `skills/deprecated/`：已废弃技能，目前为空
 
+### chief-of-staff 的长期记忆
+
+这是需要用户显式启动的实验技能。使用时若目标尚无 Wiki，首次写入前先与用户确定位置；上游没有指定固定目录。Wiki 使用 Markdown 页面，具体规则为：
+
+- `index.md` 按类别列出全部页面链接及一句摘要；其他页面各讲一个主题，并链接相关页面。
+- 学到长期信息时更新所有受影响页面和索引；决策前读取索引和相关页面。
+- 每项断言注明日期；涉及代码时引用该结论成立时的仓库和提交。
+- 结论变化时新增带日期的记录，标记旧项已被取代，保留旧记录；Issue、PR、对话和子代理报告保留原处，只通过引用关联。
+- 定期检查矛盾、孤立页、坏链接和过时断言；技能会建议排期，安装或更新本身不会创建自动化。
+
+这些是该实验技能的记忆规则，不要求普通任务预建 Wiki。领域术语和 ADR 仍按项目原有配置维护。[固定技能源码](https://github.com/mattpocock/skills/blob/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/in-progress/chief-of-staff/SKILL.md)
+
+## 维护范围与上游反馈
+
 上游的一等 tracker 支持为 GitHub、GitLab、本地 Markdown；其他工具由用户提供流程说明。新技能贡献、宿主专用配置和子代理递归限制等按 [SCOPE.md](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/SCOPE.md) 处理。上游的 `needs-info` 14 天关闭规则是其仓库 Actions，不会自动应用到用户项目。
+
+向技能上游反馈时，Bug 和既有技能修改使用 Issue，使用问题去 Discussions Q&A，新技能想法、捐赠和其他宿主或 tracker 支持建议去 Discussions Ideas，并先检查范围限制。Issue 要一事一票、复现优先；Bug 表单还要求版本或提交号。AI 辅助撰写也不粘贴完整方案或重写的技能文件；上游 PR 仅面向协作者。项目自身的 spec 和 ticket 应发布到用户项目仓库。上述反馈政策属于上游，不替换本工作区标签和授权规则。[贡献指南](https://github.com/mattpocock/skills/blob/59db609eb1e18aaf59b63284d0e52255aff0c63c/CONTRIBUTING.md)
 
 完整出处：仓库 [README](https://github.com/mattpocock/skills/blob/main/README.md)、[Engineering README](https://github.com/mattpocock/skills/blob/main/skills/engineering/README.md)、[Productivity README](https://github.com/mattpocock/skills/blob/main/skills/productivity/README.md)、[更新日志](https://github.com/mattpocock/skills/blob/main/CHANGELOG.md)和[调用规则](https://github.com/mattpocock/skills/blob/main/.agents/invocation.md)。

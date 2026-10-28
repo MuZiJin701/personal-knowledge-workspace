@@ -31,6 +31,8 @@ project/
 
 不会为了运行 Skill 同时创建两个入口文件。
 
+选择 GitHub/GitLab tracker 后，setup 先检查对应主机的 remote，并以 `gh repo view` / `glab repo view` 能读取预期项目为前提。没有 remote 时先取得用户仓库 URL，按授权配置；无法读取时停止配置，避免写出无法使用的 tracker 文档。
+
 ## 领域文档
 
 ### `GLOSSARY.md`
@@ -48,6 +50,8 @@ src/<context>/docs/adr/           # 领域专属 ADR
 
 `grill-with-docs`、`domain-modeling` 等 Skill 会在术语或重要决策真正确定时按需更新这些文档，不需要预建空文档。当前 `domain-modeling` 还会在讨论代码库术语、编写或编辑 `GLOSSARY.md`，以及记录或编辑 ADR 时触发。
 
+旧项目若仍有 `CONTEXT.md` / `CONTEXT-MAP.md`，用户显式运行 setup 时会收到迁移为 `GLOSSARY.md` / `GLOSSARY-MAP.md` 的建议，并同步 `docs/agents/domain.md` 中的路径。已有 `GLOSSARY` 布局无需改名；这是旧命名的兼容迁移，不是新增领域文档结构。
+
 ### `docs/agents/`
 
 这是工程 Skill 的配置目录，不是普通知识文档目录：
@@ -56,7 +60,7 @@ src/<context>/docs/adr/           # 领域专属 ADR
 - `triage-labels.md`：将技能角色映射到项目标签。
 - `domain.md`：记录术语与 ADR 的位置、读取规则。
 
-技能更新只覆盖安装目录，不会重写这些项目文件。已有项目需同步父子 Issue、外部 PR 查询和最新 JSON 读取规则；setup 确认 GitHub/GitLab 标签配置后，还需创建 tracker 缺失的实际标签。保留项目原有的 tracker、标签映射和 PR 分诊开关。详见[2026-10-08 更新核查](github-skills-updates-2026-10-08.md)。
+技能更新只覆盖安装目录，不会重写这些项目文件。已有项目需同步父子 Issue、外部 PR 查询和 JSON 读取规则；本轮还需补齐目标仓库核验、先评论再关闭、PR 正文与评论分别读取、开放阻塞数查询。setup 确认 GitHub/GitLab 标签配置后，还需创建 tracker 缺失的实际标签。保留项目原有的 tracker、标签映射和 PR 分诊开关。详见[2026-10-27 更新核查](github-skills-updates-2026-10-27.md)。
 
 ### `docs/adr/`
 
@@ -81,6 +85,8 @@ Issue tracker 可以是：
 ```
 
 每个实施任务独立成文件，不使用合并的 `tickets.md`。远程 tracker 按平台创建 Issue：从已有 spec 或 map Issue 拆出的任务建立父子归属，执行依赖另外建立原生阻塞边；已有原生边时省略正文的 `Blocked by`，不支持时才回退为文本。GitHub 操作见工作区的 [issue-tracker.md](../../docs/agents/issue-tracker.md)。
+
+每会话首次创建 GitHub Issue 前先核对实际目标，避免 fork 的默认上游接收项目任务；确认后显式指定项目仓库。开放阻塞数只统计尚未关闭的阻塞方。GitLab 地图任务需建立关联，从地图的 links API 筛选开放、带类型标签、未分配且无开放阻塞的任务，MR 列表使用 `-O json`。
 
 ## 术语和 triage
 
@@ -125,14 +131,21 @@ Wayfinder 地图和决策任务只使用 `wayfinder:` 标签；先创建真实 I
 
 `wizard` 默认是临时产物；需要长期重复使用时可放入 `scripts/`。复制当前模板后，将所有阶段保留在 `run_wizard` 中并保留末尾调用；运行前用 `bash -n <script>` 检查语法。技能更新不改写已有脚本副本，也不自动刷新其中的 `.env` 读取、清屏和变量同步逻辑。[2026-10-10 模板核查](github-skills-updates-2026-10-10.md)
 
-本轮反馈检查还要求：传入 ticket 引用时先获取内容并复述标题；选定测试边界前说明能检查与遗漏什么；若通过修改代码或数据制造失败测试，先比较原始副本确认修改已生效。审查先搜索所有编码规范，再前台并行执行 Standards 与 Spec 两路审查。
+10 月 8 日同步的反馈检查还要求：传入 ticket 引用时先获取内容并复述标题；选定测试边界前说明能检查与遗漏什么；若通过修改代码或数据制造失败测试，先比较原始副本确认修改已生效。审查先搜索所有编码规范，再前台并行执行 Standards 与 Spec 两路审查。
 
 流程中的 `/skill` 表示用户主动调用。Skill 内部依赖应显式调用 Skill tool，且一次只调用一个 Model-invoked Skill；User-invoked Skill 只能提示用户执行，不能由其他 Skill 代调用。
 
 `handoff` 是临时交接材料：Windows 使用 `%TEMP%`，其他系统使用 `$TMPDIR` 或 `/tmp`，需要长期保留时再复制到明确的位置。实验技能 `claude-handoff` 先写临时摘要文件，再传给后台 Claude，避免 Shell 解释摘要里的特殊字符。
 
+## chief-of-staff 的长期记忆目录
+
+只有用户显式启动该实验技能、需要为长期目标维护记忆时才使用 Wiki；没有现成 Wiki 时，首次写入前先与用户确定位置，上游没有要求固定路径。Wiki 根目录包含按类别组织链接和摘要的 `index.md`，其他 Markdown 页面每页讲一个主题，并相互链接。
+
+学习新信息时更新所有受影响页面和索引，决策前先查询；每项断言注明日期，代码结论还需引用仓库及提交。结论变化时保留并标记旧记录已被取代；Issue、PR、对话或子代理报告留在原处，由页面引用。定期检查矛盾、孤立页、坏链接和过时内容的排期需另行安排。领域术语和 ADR 继续遵循原有项目配置；普通任务无需预建 Wiki。[规则与来源](github-skills-updates-2026-10-21.md)
+
 ## 官方来源
 
-- [固定版本 setup Skill](https://github.com/mattpocock/skills/blob/f3fc5632f401156837ee3872f14fe33ccf1024ea/skills/engineering/setup-matt-pocock-skills/SKILL.md)
-- [GitHub tracker 模板](https://github.com/mattpocock/skills/blob/f3fc5632f401156837ee3872f14fe33ccf1024ea/skills/engineering/setup-matt-pocock-skills/issue-tracker-github.md)
+- [固定版本 setup Skill](https://github.com/mattpocock/skills/blob/59db609eb1e18aaf59b63284d0e52255aff0c63c/skills/engineering/setup-matt-pocock-skills/SKILL.md)
+- [GitHub tracker 模板](https://github.com/mattpocock/skills/blob/59db609eb1e18aaf59b63284d0e52255aff0c63c/skills/engineering/setup-matt-pocock-skills/issue-tracker-github.md)
+- [GitLab tracker 模板](https://github.com/mattpocock/skills/blob/59db609eb1e18aaf59b63284d0e52255aff0c63c/skills/engineering/setup-matt-pocock-skills/issue-tracker-gitlab.md)
 - [贡献与维护范围](https://github.com/mattpocock/skills/blob/6fd947921b935b7e1e69293a200400f0fdd5c15f/SCOPE.md)
